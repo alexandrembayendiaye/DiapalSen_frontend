@@ -1,0 +1,225 @@
+/* ✅ STYLES ADMIN CSS - Cohérent avec Bootstrap DiapalSen */
+/* Créez ce fichier : src/styles/admin.css */
+
+/* Layout Admin - Même style que dashboard normal */
+.admin-layout {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    /* Même bg que dashboard-page */
+}
+
+.admin-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-body {
+    min-height: calc(100vh - 60px);
+}
+
+/* Sidebar Admin - Style cohérent */
+.admin-sidebar {
+    width: 280px;
+    min-height: calc(100vh - 60px);
+    position: sticky;
+    top: 60px;
+    background-color: #fff;
+    border-right: 1px solid #dee2e6;
+}
+
+.admin-content {
+    background-color: #f8f9fa;
+    /* Même que dashboard principal */
+    min-height: calc(100vh - 60px);
+}
+
+/* Menu Admin - Style Bootstrap consistant */
+.admin-menu .nav-link {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    margin-bottom: 4px;
+}
+
+.admin-menu .nav-link:hover {
+    background-color: #e9ecef !important;
+    border-color: #dee2e6;
+    color: #495057 !important;
+}
+
+.admin-menu .nav-link.bg-primary:hover {
+    background-color: #0056b3 !important;
+    color: white !important;
+}
+
+/* Stat Cards - Même style que dashboard principal */
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Cards hover effect - comme dans le dashboard */
+.admin-dashboard .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-dashboard .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Tables - Style Bootstrap amélioré */
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.table thead th {
+    border-top: none;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+/* Badges - Couleurs cohérentes */
+.badge-en-attente {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-actif {
+    background-color: #28a745;
+}
+
+.badge-rejete {
+    background-color: #dc3545;
+}
+
+.badge-finance {
+    background-color: #17a2b8;
+}
+
+.badge-contributeur {
+    background-color: #6c757d;
+}
+
+.badge-porteur {
+    background-color: #007bff;
+}
+
+.badge-admin {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* Boutons actions - Style cohérent */
+.btn-validate {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-validate:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    color: white;
+}
+
+.btn-reject {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-reject:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+    color: white;
+}
+
+/* Actions rapides - même style que dashboard */
+.admin-dashboard .btn.p-3 {
+    min-height: 80px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.admin-dashboard .btn.p-3:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive - cohérent */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        position: fixed;
+        left: -280px;
+        z-index: 1050;
+        transition: left 0.3s ease;
+    }
+
+    .admin-sidebar.show {
+        left: 0;
+    }
+
+    .admin-content {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .admin-header .text-md-end {
+        text-align: center !important;
+        margin-top: 10px;
+    }
+}
+
+/* States cohérents */
+.admin-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    color: #6c757d;
+}
+
+/* Shadow et border radius cohérents avec le dashboard */
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.rounded {
+    border-radius: 0.375rem !important;
+}
+
+/* Couleurs de fond cohérentes */
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+/* Animation pour les statistiques */
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.admin-dashboard h3 {
+    animation: countUp 0.6s ease-out;
+}
