@@ -1,5 +1,5 @@
 // src/App.jsx - VERSION TEMPORAIRE
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Link } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext.jsx'
 import { useState, useEffect } from 'react'
 
@@ -208,15 +208,10 @@ function App() {
 
           {/* ✅ ROUTES ADMIN SIMPLIFIÉES TEMPORAIRES */}
           {/* Routes admin PROTÉGÉES */}
-          <Route path="/admin/dashboard" element={
-            <AdminProtectedRoute>
-              <AdminDashboard />
-            </AdminProtectedRoute>
-          } />
-          {/* Page 404 */}
-          <Route path="*" element={<NotFoundPage />} />
-
           <Route path="/admin/projets/en-attente" element={<AdminProjetsEnAttente />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          {/* <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
+          <Route path="/admin/validations" element={<AdminHistorique />} /> */}
         </Routes>
       </main>
 

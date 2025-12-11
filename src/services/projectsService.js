@@ -152,10 +152,11 @@ const projectsService = {
     },
 
     // 🚀 SOUMETTRE UN PROJET POUR VALIDATION
+    // 🚀 SOUMETTRE UN PROJET POUR VALIDATION
     async submitProject(id) {
         try {
             console.log('🔄 Soumission du projet ID:', id)
-            const response = await api.post(`/projects/${id}/submit/`)
+            const response = await api.post(`/projects/${id}/soumettre/`)  // ✅ Corrigé
 
             console.log('✅ Projet soumis pour validation:', response.data)
             return response.data

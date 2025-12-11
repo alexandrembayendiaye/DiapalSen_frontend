@@ -1,4 +1,5 @@
-// src/pages/admin/AdminProjetsEnAttente.jsx
+// Remplacez votre AdminProjetsEnAttente.jsx par cette version :
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import adminService from '../../services/adminService';
@@ -8,12 +9,13 @@ const AdminProjetsEnAttente = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // État pour les modals
+    // États pour les modals (code existant...)
     const [projetSelectionne, setProjetSelectionne] = useState(null);
     const [showModalValidation, setShowModalValidation] = useState(false);
     const [showModalRejet, setShowModalRejet] = useState(false);
+    const [showModalInfos, setShowModalInfos] = useState(false);
 
-    // États des formulaires
+    // États des formulaires (code existant...)
     const [validationForm, setValidationForm] = useState({
         type_financement: 'flexible_50',
         commentaire: ''
@@ -22,45 +24,46 @@ const AdminProjetsEnAttente = () => {
         motif_rejet: '',
         commentaire: ''
     });
-
-    useEffect(() => {
-        loadProjetsEnAttente();
-    }, []);
-
-    const loadProjetsEnAttente = async () => {
-        try {
-            setLoading(true);
-            const response = await adminService.getProjetsEnAttente();
-            setProjets(response.results || response); // Adaptation selon la structure API
-        } catch (err) {
-            console.error('Erreur chargement projets:', err);
-            setError('Impossible de charger les projets en attente');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Ouvrir modal validation
+    const [infosForm, setInfosForm] = useState({
+        demande_informations: ''
+    });
+    // ✅ FONCTIONS POUR LES MODALS
     const ouvrirModalValidation = (projet) => {
         setProjetSelectionne(projet);
-        setValidationForm({
-            type_financement: 'flexible_50',
-            commentaire: ''
-        });
+        setValidationForm({ type_financement: 'flexible_50', commentaire: '' });
         setShowModalValidation(true);
     };
 
-    // Ouvrir modal rejet
     const ouvrirModalRejet = (projet) => {
         setProjetSelectionne(projet);
-        setRejetForm({
-            motif_rejet: '',
-            commentaire: ''
-        });
+        setRejetForm({ motif_rejet: '', commentaire: '' });
         setShowModalRejet(true);
     };
 
-    // Valider projet
+    const ouvrirModalInfos = (projet) => {
+        setProjetSelectionne(projet);
+        setInfosForm({ demande_informations: '' });
+        setShowModalInfos(true);
+    };
+
+    // ✅ FONCTION DEMANDER INFOS
+    const demanderInfos = async () => {
+        try {
+            if (!infosForm.demande_informations.trim()) {
+                alert('Veuillez préciser les informations demandées');
+                return;
+            }
+
+            alert('✅ Demande d\'informations envoyée au porteur');
+            setShowModalInfos(false);
+            setProjetSelectionne(null);
+        } catch (error) {
+            console.error('Erreur demande infos:', error);
+            alert('❌ Erreur lors de l\'envoi');
+        }
+    };
+
+    // ✅ FONCTION VALIDER PROJET
     const validerProjet = async () => {
         try {
             if (!validationForm.commentaire.trim()) {
@@ -74,13 +77,9 @@ const AdminProjetsEnAttente = () => {
                 commentaire: validationForm.commentaire
             });
 
-            // Refresh la liste
             await loadProjetsEnAttente();
-
-            // Fermer modal
             setShowModalValidation(false);
             setProjetSelectionne(null);
-
             alert('✅ Projet validé avec succès !');
         } catch (error) {
             console.error('Erreur validation:', error);
@@ -88,7 +87,7 @@ const AdminProjetsEnAttente = () => {
         }
     };
 
-    // Rejeter projet
+    // ✅ FONCTION REJETER PROJET
     const rejeterProjet = async () => {
         try {
             if (!rejetForm.motif_rejet.trim() || !rejetForm.commentaire.trim()) {
@@ -102,13 +101,9 @@ const AdminProjetsEnAttente = () => {
                 commentaire: rejetForm.commentaire
             });
 
-            // Refresh la liste
             await loadProjetsEnAttente();
-
-            // Fermer modal
             setShowModalRejet(false);
             setProjetSelectionne(null);
-
             alert('✅ Projet rejeté');
         } catch (error) {
             console.error('Erreur rejet:', error);
@@ -116,7 +111,27 @@ const AdminProjetsEnAttente = () => {
         }
     };
 
-    // Loading state
+    // Fonctions existantes (loadProjetsEnAttente, etc.)
+    useEffect(() => {
+        loadProjetsEnAttente();
+    }, []);
+
+    const loadProjetsEnAttente = async () => {
+        try {
+            setLoading(true);
+            const response = await adminService.getProjetsEnAttente();
+            setProjets(response.results || response);
+        } catch (err) {
+            console.error('Erreur chargement projets:', err);
+            setError('Impossible de charger les projets en attente');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ... toutes vos fonctions existantes ...
+
+    // Loading/Error states
     if (loading) {
         return (
             <div className="container py-5">
@@ -130,7 +145,6 @@ const AdminProjetsEnAttente = () => {
         );
     }
 
-    // Error state
     if (error) {
         return (
             <div className="container py-4">
@@ -146,116 +160,259 @@ const AdminProjetsEnAttente = () => {
     }
 
     return (
-        <div className="admin-projets-en-attente">
-            {/* Header */}
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 className="h3 mb-1">⏳ Projets en attente de validation</h1>
-                    <p className="text-muted mb-0">
-                        {projets.length} projet{projets.length > 1 ? 's' : ''} à traiter
-                    </p>
+        <div className="container py-4"> {/* ✅ AJOUT CONTAINER */}
+            {/* ✅ BREADCRUMB NAVIGATION */}
+            <nav aria-label="breadcrumb" className="mb-4">
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item">
+                        <Link to="/dashboard" className="text-decoration-none">
+                            <i className="bi bi-house me-1"></i>
+                            Dashboard
+                        </Link>
+                    </li>
+                    <li className="breadcrumb-item">
+                        <Link to="/admin/dashboard" className="text-decoration-none">
+                            Interface Admin
+                        </Link>
+                    </li>
+                    <li className="breadcrumb-item active" aria-current="page">
+                        Projets en attente
+                    </li>
+                </ol>
+            </nav>
+
+            {/* ✅ HEADER DIAPALSEN STYLE */}
+            <div className="row align-items-center mb-4">
+                <div className="col-md-8">
+                    <div className="d-flex align-items-center">
+                        <div className="bg-warning bg-gradient text-dark rounded-3 p-3 me-3 shadow-sm">
+                            <i className="bi bi-hourglass-split fs-3"></i>
+                        </div>
+                        <div>
+                            <h1 className="h3 mb-1 text-dark fw-bold">
+                                Projets en attente de validation
+                            </h1>
+                            <p className="text-muted mb-0">
+                                <span className="badge bg-warning text-dark fw-bold me-2">
+                                    {projets.length}
+                                </span>
+                                projet{projets.length > 1 ? 's' : ''} nécessite{projets.length > 1 ? 'nt' : ''} votre attention
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <Link to="/admin/dashboard" className="btn btn-outline-secondary">
-                    <i className="bi bi-arrow-left me-2"></i>
-                    Retour dashboard
-                </Link>
+                <div className="col-md-4 text-md-end">
+                    <Link to="/admin/dashboard" className="btn btn-outline-primary">
+                        <i className="bi bi-arrow-left me-2"></i>
+                        Retour dashboard admin
+                    </Link>
+                </div>
             </div>
 
-            {/* Liste des projets */}
+            {/* ✅ LISTE PROJETS AMÉLIORÉE */}
             {projets.length === 0 ? (
-                <div className="card">
+                <div className="card border-0 shadow-sm">
                     <div className="card-body text-center py-5">
-                        <i className="bi bi-check-circle text-success" style={{ fontSize: '3rem' }}></i>
-                        <h4 className="mt-3">Aucun projet en attente !</h4>
-                        <p className="text-muted">Tous les projets soumis ont été traités.</p>
+                        <div className="bg-success bg-gradient rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                            style={{ width: '80px', height: '80px' }}>
+                            <i className="bi bi-check-circle text-white fs-2"></i>
+                        </div>
+                        <h4 className="text-success mb-2">Excellent travail ! 🎉</h4>
+                        <p className="text-muted mb-4">
+                            Tous les projets soumis ont été traités avec succès.
+                        </p>
                         <Link to="/admin/dashboard" className="btn btn-primary">
+                            <i className="bi bi-speedometer2 me-2"></i>
                             Retour dashboard
                         </Link>
                     </div>
                 </div>
             ) : (
-                <div className="row">
-                    {projets.map(projet => (
-                        <div key={projet.id} className="col-lg-6 mb-4">
-                            <div className="card h-100 shadow-sm">
-                                <div className="card-header d-flex justify-content-between align-items-center">
-                                    <h5 className="card-title mb-0">{projet.titre}</h5>
-                                    <span className="badge bg-warning">En attente</span>
-                                </div>
-
-                                <div className="card-body">
-                                    <div className="mb-3">
-                                        <small className="text-muted">Porteur</small>
-                                        <div className="fw-medium">{projet.porteur_nom}</div>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <small className="text-muted">Catégorie</small>
-                                        <div>
-                                            <span className="me-1">{projet.categorie_icone}</span>
-                                            {projet.categorie_nom}
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <small className="text-muted">Objectif de financement</small>
-                                        <div className="fw-bold text-primary">
-                                            {(projet.montant_objectif || 0).toLocaleString()} FCFA
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <small className="text-muted">Localisation</small>
-                                        <div>📍 {projet.ville}, {projet.region}</div>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <small className="text-muted">Description</small>
-                                        <p className="small">
-                                            {projet.description_courte?.substring(0, 120)}
-                                            {projet.description_courte?.length > 120 ? '...' : ''}
-                                        </p>
-                                    </div>
-
-                                    <div className="mb-3">
-                                        <small className="text-muted">Soumis le</small>
-                                        <div className="small">
-                                            {new Date(projet.date_creation).toLocaleDateString('fr-FR', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit'
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="card-footer bg-light">
-                                    <div className="d-grid gap-2">
-                                        <button
-                                            className="btn btn-success"
-                                            onClick={() => ouvrirModalValidation(projet)}
-                                        >
-                                            <i className="bi bi-check-lg me-2"></i>
-                                            Valider le projet
-                                        </button>
-                                        <button
-                                            className="btn btn-outline-danger"
-                                            onClick={() => ouvrirModalRejet(projet)}
-                                        >
-                                            <i className="bi bi-x-lg me-2"></i>
-                                            Rejeter le projet
-                                        </button>
-                                    </div>
-                                </div>
+                <div className="card border-0 shadow-sm">
+                    <div className="card-header bg-white border-bottom py-3">
+                        <div className="d-flex justify-content-between align-items-center">
+                            <h5 className="card-title mb-0 text-dark">
+                                <i className="bi bi-list-check me-2 text-primary"></i>
+                                Projets à traiter
+                            </h5>
+                            <div className="d-flex align-items-center">
+                                <span className="badge bg-primary me-2">{projets.length} en attente</span>
+                                <button
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={loadProjetsEnAttente}
+                                    title="Actualiser"
+                                >
+                                    <i className="bi bi-arrow-clockwise"></i>
+                                </button>
                             </div>
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="table-responsive">
+                        <table className="table table-hover align-middle mb-0">
+                            <thead className="table-light">
+                                <tr>
+                                    <th className="border-0 ps-4 fw-bold text-dark">Projet</th>
+                                    <th className="border-0 fw-bold text-dark">Porteur</th>
+                                    <th className="border-0 fw-bold text-dark">Catégorie</th>
+                                    <th className="border-0 fw-bold text-dark">Objectif</th>
+                                    <th className="border-0 fw-bold text-dark">Soumis le</th>
+                                    <th className="border-0 text-center pe-4 fw-bold text-dark">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {projets.map(projet => (
+                                    <tr key={projet.id} className="border-bottom">
+                                        <td className="ps-4 py-3">
+                                            <div>
+                                                <h6 className="mb-1 fw-bold text-dark">{projet.titre}</h6>
+                                                <p className="mb-1 text-muted small" style={{ maxWidth: '280px' }}>
+                                                    {projet.description_courte?.substring(0, 85)}
+                                                    {projet.description_courte?.length > 85 ? '...' : ''}
+                                                </p>
+                                                <div className="d-flex align-items-center text-muted small">
+                                                    <i className="bi bi-geo-alt me-1 text-primary"></i>
+                                                    <span>{projet.ville || 'N/A'}, {projet.region || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-3">
+                                            <div className="d-flex align-items-center">
+                                                <div className="rounded-circle bg-gradient bg-primary text-white d-flex align-items-center justify-content-center me-2 shadow-sm"
+                                                    style={{ width: '40px', height: '40px', fontSize: '16px', fontWeight: 'bold' }}>
+                                                    {(projet.porteur_nom || projet.porteur?.first_name || 'U').charAt(0).toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <div className="fw-medium text-dark">
+                                                        {projet.porteur_nom || projet.porteur?.first_name || 'Utilisateur'}
+                                                    </div>
+                                                    <small className="text-muted">
+                                                        {projet.porteur?.email || 'N/A'}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="py-3">
+                                            <div className="d-flex align-items-center">
+                                                <span className="me-2" style={{ fontSize: '1.2rem' }}>
+                                                    {projet.categorie_icone || '📂'}
+                                                </span>
+                                                <span className="text-dark fw-medium">
+                                                    {projet.categorie_nom || projet.categorie?.nom || 'Non définie'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="py-3">
+                                            <div className="text-success fw-bold">
+                                                {(projet.montant_objectif || 0).toLocaleString()}
+                                            </div>
+                                            <small className="text-muted">FCFA</small>
+                                        </td>
+                                        <td className="py-3">
+                                            <div className="text-dark">
+                                                {new Date(projet.date_creation).toLocaleDateString('fr-FR', {
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                    year: 'numeric'
+                                                })}
+                                            </div>
+                                            <small className="text-muted">
+                                                {new Date(projet.date_creation).toLocaleTimeString('fr-FR', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit'
+                                                })}
+                                            </small>
+                                        </td>
+                                        <td className="text-center pe-4 py-3">
+                                            <div className="btn-group" role="group">
+                                                <button
+                                                    className="btn btn-sm btn-success shadow-sm"
+                                                    onClick={() => ouvrirModalValidation(projet)}
+                                                    title="Valider le projet"
+                                                >
+                                                    <i className="bi bi-check-lg"></i>
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm btn-warning shadow-sm"
+                                                    onClick={() => ouvrirModalInfos(projet)}
+                                                    title="Demander des informations supplémentaires"
+                                                >
+                                                    <i className="bi bi-question-circle"></i>
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm btn-danger shadow-sm"
+                                                    onClick={() => ouvrirModalRejet(projet)}
+                                                    title="Rejeter le projet"
+                                                >
+                                                    <i className="bi bi-x-lg"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
-            {/* Modal Validation */}
+            {/* Vos modals existants... */}
+            {showModalInfos && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content">
+                            <div className="modal-header bg-warning text-dark">
+                                <h5 className="modal-title">
+                                    <i className="bi bi-question-circle me-2"></i>
+                                    Demander des informations : {projetSelectionne?.titre}
+                                </h5>
+                                <button
+                                    className="btn-close"
+                                    onClick={() => setShowModalInfos(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="alert alert-info">
+                                    <i className="bi bi-info-circle me-2"></i>
+                                    <strong>Le porteur sera notifié</strong> et devra fournir les informations demandées avant une nouvelle validation.
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label fw-bold">Informations requises *</label>
+                                    <textarea
+                                        className="form-control"
+                                        rows="5"
+                                        value={infosForm.demande_informations}
+                                        onChange={(e) => setInfosForm({
+                                            demande_informations: e.target.value
+                                        })}
+                                        placeholder="Précisez les informations manquantes ou les clarifications nécessaires..."
+                                    />
+                                    <small className="text-muted">Soyez précis pour aider le porteur à compléter son dossier</small>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowModalInfos(false)}
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    className="btn btn-warning"
+                                    onClick={demanderInfos}
+                                    disabled={!infosForm.demande_informations.trim()}
+                                >
+                                    <i className="bi bi-send me-2"></i>
+                                    Envoyer la demande
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* MODALS VALIDATION ET REJET (code existant...) */}
             {showModalValidation && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-lg">
@@ -285,7 +442,6 @@ const AdminProjetsEnAttente = () => {
                                         <option value="flexible_50">Flexible 50% (minimum 50%)</option>
                                         <option value="solidaire">Solidaire (tout montant accepté)</option>
                                     </select>
-                                    <small className="text-muted">Choisissez le type de financement approprié</small>
                                 </div>
 
                                 <div className="mb-3">
@@ -298,7 +454,7 @@ const AdminProjetsEnAttente = () => {
                                             ...validationForm,
                                             commentaire: e.target.value
                                         })}
-                                        placeholder="Expliquez pourquoi ce projet est validé et donnez des conseils au porteur..."
+                                        placeholder="Expliquez pourquoi ce projet est validé..."
                                     />
                                 </div>
                             </div>
@@ -323,7 +479,7 @@ const AdminProjetsEnAttente = () => {
                 </div>
             )}
 
-            {/* Modal Rejet */}
+            {/* MODAL REJET (code existant) */}
             {showModalRejet && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-lg">
@@ -369,9 +525,8 @@ const AdminProjetsEnAttente = () => {
                                             ...rejetForm,
                                             commentaire: e.target.value
                                         })}
-                                        placeholder="Expliquez en détail les raisons du rejet et donnez des conseils d'amélioration..."
+                                        placeholder="Expliquez les raisons du rejet..."
                                     />
-                                    <small className="text-muted">Soyez constructif pour aider le porteur à améliorer son projet</small>
                                 </div>
                             </div>
                             <div className="modal-footer">
