@@ -16,6 +16,7 @@ import ProjectsListPage from './pages/projects/ProjectsListPage'
 import ProjectDetailPage from './pages/projects/ProjectDetailPage'
 import MesProjetsPage from './pages/projects/MesProjetsPage'
 import CreerProjetPage from './pages/projects/CreerProjetPage'
+import ModifierProjetPage from './pages/projects/ModifierProjetPage'
 import MesContributionsPage from './pages/contributions/MesContributionsPage'
 import DashboardPorteurStats from './pages/porteur/DashboardPorteurStats'
 import GestionContributeurs from './pages/porteur/GestionContributeurs'
@@ -190,6 +191,8 @@ function App() {
           <Route path="/projets/:id" element={<ProjectDetailPage />} />
           <Route path="/mes-projets" element={<MesProjetsPage />} />
           <Route path="/projets/creer" element={<CreerProjetPage />} />
+          <Route path="/projets/:projectId/modifier" element={<ModifierProjetPage />} />
+
 
           {/* Contributions */}
           <Route path="/mes-contributions" element={<MesContributionsPage />} />

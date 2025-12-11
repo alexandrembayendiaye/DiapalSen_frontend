@@ -170,6 +170,13 @@ const MesProjetsPage = () => {
             case 'en_attente':
                 return (
                     <div className="d-flex gap-1">
+                        <Link
+                            to={`/projets/${projet.id}/modifier`}
+                            className={`${baseButtonClass} btn-outline-primary`}
+                            title="Modifier le projet (limité)"
+                        >
+                            <i className="bi bi-pencil"></i>
+                        </Link>
                         <button
                             className={`${baseButtonClass} btn-outline-secondary`}
                             disabled
@@ -195,6 +202,13 @@ const MesProjetsPage = () => {
                             title="Voir le projet public"
                         >
                             <i className="bi bi-eye"></i>
+                        </Link>
+                        <Link
+                            to={`/projets/${projet.id}/modifier`}
+                            className={`${baseButtonClass} btn-outline-warning`}
+                            title="Modifier (description et vidéo uniquement)"
+                        >
+                            <i className="bi bi-pencil"></i>
                         </Link>
                         <Link
                             to={`/mes-projets/${projet.id}/actualites`}

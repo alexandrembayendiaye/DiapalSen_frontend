@@ -67,6 +67,17 @@ const authService = {
             throw error.response?.data || error;
         }
     },
+    async getUserStats() {
+        try {
+            console.log('🔄 Récupération des stats utilisateur...');
+            const response = await api.get('/users/stats/');
+            console.log('✅ Stats utilisateur récupérées:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('❌ Erreur stats utilisateur:', error.response?.data);
+            throw error.response?.data || error;
+        }
+    },
 
     // 🚪 DÉCONNEXION
     async logout() {

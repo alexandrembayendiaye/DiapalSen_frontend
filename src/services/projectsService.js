@@ -58,15 +58,27 @@ const projectsService = {
     // ✏️ MODIFIER UN PROJET
     async updateProject(id, projectData) {
         try {
-            console.log('🔄 Modification du projet ID:', id, projectData)
-            const response = await api.put(`/projects/${id}/update/`, projectData)
+            console.log('🔄 Mise à jour projet:', id);
 
-            console.log('✅ Projet modifié:', response.data)
-            return response.data
+            // Configurer les headers pour FormData
+            const config = projectData instanceof FormData ? {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            } : {};
+
+            const response = await api.patch(`/projects/edit/${id}/`, projectData, config);
+            console.log('✅ Projet mis à jour:', response.data);
+            return response.data;
         } catch (error) {
-            console.error('❌ Erreur modification projet:', error.response?.data)
-            throw error.response?.data || error
+            console.error('❌ Erreur update projet:', error.response?.data);
+            throw error.response?.data || error;
         }
+    },
+
+    // Alias pour compatibilité
+    async updateProjet(id, projectData) {
+        return this.updateProject(id, projectData)
     },
 
     // 👤 RÉCUPÉRER MES PROJETS (PORTEUR)
@@ -133,6 +145,30 @@ const projectsService = {
             return response.data
         } catch (error) {
             console.error('❌ Erreur upload image:', error.response?.data)
+            throw error.response?.data || error
+        }
+    },
+    async uploadDocument(projectId, file, type) {
+        try {
+            console.log(`🔄 Upload document ${type} pour projet ${projectId}`)
+
+            const formData = new FormData()
+            if (type === 'budget') {
+                formData.append('document_budget', file)
+            } else if (type === 'business_plan') {
+                formData.append('document_business_plan', file)
+            }
+
+            const response = await api.patch(`/projects/${projectId}/upload-document/`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+
+            console.log(`✅ Document ${type} uploadé:`, response.data)
+            return response.data
+        } catch (error) {
+            console.error(`❌ Erreur upload document ${type}:`, error.response?.data)
             throw error.response?.data || error
         }
     },

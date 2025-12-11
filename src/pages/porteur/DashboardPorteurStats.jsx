@@ -32,6 +32,40 @@ ChartJS.register(
     ArcElement
 )
 
+// ✨ Constantes de couleurs
+const COLORS = {
+    primary: '#0d6efd',
+    success: '#198754',
+    warning: '#ffc107',
+    danger: '#dc3545',
+    info: '#0dcaf0',
+    gradient: {
+        start: 'rgba(13, 110, 253, 0.8)',
+        end: 'rgba(13, 110, 253, 0.1)'
+    }
+}
+
+// ✨ Helper pour formater les montants
+const formatMontant = (montant) => {
+    return new Intl.NumberFormat('fr-FR').format(Math.round(montant)) + ' FCFA'
+}
+
+// ✨ Helper pour formater les dates
+const formatDate = (dateString) => {
+    const date = new Date(dateString.split('/').reverse().join('-'))
+    const options = { day: 'numeric', month: 'short' }
+    return date.toLocaleDateString('fr-FR', options)
+}
+const formatMontantCourt = (montant) => {
+    if (montant >= 1000000000) {
+        return (montant / 1000000000).toFixed(1) + ' Mrd'
+    } else if (montant >= 1000000) {
+        return (montant / 1000000).toFixed(1) + ' M'
+    } else if (montant >= 1000) {
+        return (montant / 1000).toFixed(0) + ' k'
+    }
+    return montant.toFixed(0)
+}
 const DashboardPorteurStats = () => {
     const { projectId } = useParams()
     const { user } = useAuth()
@@ -40,7 +74,7 @@ const DashboardPorteurStats = () => {
     const [stats, setStats] = useState({
         contributions: [],
         contributeurs: [],
-        vues: [],
+        vues: 0,
         partages: {},
         commentaires: 0,
         favoris: 0
@@ -84,19 +118,13 @@ const DashboardPorteurStats = () => {
             try {
                 const [contributionsData, statsData] = await Promise.all([
                     contributionsService.getContributionsProjet(projectId),
-                    // Utiliser une API simple ou simuler les stats pour l'instant
-                    Promise.resolve({
-                        vues: [],
-                        partages: {},
-                        commentaires: 0,
-                        favoris: 0
-                    })
+                    projectsService.getProjectStats(projectId)  // ✅ Vraie API
                 ])
 
                 setStats({
                     contributions: contributionsData.results || [],
                     contributeurs: contributionsData.contributeurs || [],
-                    vues: statsData.vues || [],
+                    vues: statsData.vues || 0,
                     partages: statsData.partages || {},
                     commentaires: statsData.commentaires || 0,
                     favoris: statsData.favoris || 0
@@ -107,7 +135,7 @@ const DashboardPorteurStats = () => {
                 setStats({
                     contributions: [],
                     contributeurs: [],
-                    vues: [],
+                    vues: 0,
                     partages: {},
                     commentaires: 0,
                     favoris: 0
@@ -123,44 +151,48 @@ const DashboardPorteurStats = () => {
         }
     }
 
-    // Préparer les données pour les graphiques
-    const prepareContributionsChartData = () => {
+    // ✨ Préparer les données pour les graphiques (AMÉLIORÉ)
+    const prepareEvolutionChartData = () => {
         if (!stats.contributions.length) return { labels: [], datasets: [] }
-
         // Grouper les contributions par jour
         const contributionsByDay = {}
         stats.contributions.forEach(contribution => {
             const date = new Date(contribution.date_contribution).toLocaleDateString('fr-FR')
-            contributionsByDay[date] = (contributionsByDay[date] || 0) + contribution.montant
+            // ✅ CORRECTION : Convertir le montant en nombre
+            const montant = parseFloat(contribution.montant) || 0
+            contributionsByDay[date] = (contributionsByDay[date] || 0) + montant
         })
-
         const sortedDates = Object.keys(contributionsByDay).sort((a, b) =>
             new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-'))
         )
-
+        // Calculer le montant cumulatif
         let cumulativeAmount = 0
         const cumulativeData = sortedDates.map(date => {
             cumulativeAmount += contributionsByDay[date]
             return cumulativeAmount
         })
-
         return {
-            labels: sortedDates,
+            labels: sortedDates.map(date => formatDate(date)),
             datasets: [
                 {
-                    label: 'Montant collecté (FCFA)',
+                    label: 'Montant collecté cumulé',
                     data: cumulativeData,
-                    borderColor: 'rgb(54, 162, 235)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: COLORS.primary,
+                    backgroundColor: (context) => {
+                        const ctx = context.chart.ctx;
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                        gradient.addColorStop(0, 'rgba(13, 110, 253, 0.3)');
+                        gradient.addColorStop(1, 'rgba(13, 110, 253, 0.05)');
+                        return gradient;
+                    },
                     tension: 0.4,
-                    fill: true
-                },
-                {
-                    label: 'Contributions par jour',
-                    data: sortedDates.map(date => contributionsByDay[date]),
-                    type: 'bar',
-                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    yAxisID: 'y1'
+                    fill: true,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: COLORS.primary,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
                 }
             ]
         }
@@ -188,19 +220,51 @@ const DashboardPorteurStats = () => {
         }
     }
 
+    // ✨ Options de graphique améliorées
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: {
             mode: 'index',
             intersect: false,
         },
         plugins: {
             legend: {
-                position: 'top',
+                display: false  // Masquer la légende pour une courbe simple
             },
             title: {
                 display: true,
-                text: 'Évolution des contributions'
+                text: 'Évolution du montant collecté',
+                font: {
+                    size: 16,
+                    weight: 'bold'
+                },
+                padding: 20
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                padding: 12,
+                titleFont: {
+                    size: 14,
+                    weight: 'bold'
+                },
+                bodyFont: {
+                    size: 13
+                },
+                callbacks: {
+                    label: function (context) {
+                        return 'Montant cumulé: ' + formatMontant(context.parsed.y);
+                    },
+                    footer: function (tooltipItems) {
+                        if (project) {
+                            const total = tooltipItems[0].parsed.y;
+                            const objectif = project.montant_objectif;
+                            const pourcentage = ((total / objectif) * 100).toFixed(1);
+                            return `Progression: ${pourcentage}% de l'objectif`;
+                        }
+                        return '';
+                    }
+                }
             }
         },
         scales: {
@@ -208,17 +272,48 @@ const DashboardPorteurStats = () => {
                 type: 'linear',
                 display: true,
                 position: 'left',
-            },
-            y1: {
-                type: 'linear',
-                display: true,
-                position: 'right',
-                grid: {
-                    drawOnChartArea: false,
+                title: {
+                    display: true,
+                    text: 'Montant collecté',
+                    font: {
+                        size: 12,
+                        weight: 'bold'
+                    }
                 },
+                ticks: {
+                    callback: function (value) {
+                        return formatMontantCourt(value);  // Format court (M, Mrd)
+                    },
+                    font: {
+                        size: 11
+                    }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                }
             }
         }
     }
+
+    // ✨ Calculer les statistiques récapitulatives
+    const calculateStats = () => {
+        if (!stats.contributions.length) return null
+
+        // ✅ CORRECTION : Convertir les strings en nombres
+        const montants = stats.contributions.map(c => parseFloat(c.montant) || 0)
+        const moyenne = montants.reduce((a, b) => a + b, 0) / montants.length
+        const max = Math.max(...montants)
+        const min = Math.min(...montants)
+
+        return {
+            contribution_moyenne: moyenne,
+            contribution_max: max,
+            contribution_min: min,
+            taux_reussite: project ? ((project.montant_collecte / project.montant_objectif) * 100).toFixed(1) : 0
+        }
+    }
+
+    const statsCalc = calculateStats()
 
     if (loading) {
         return (
@@ -374,11 +469,41 @@ const DashboardPorteurStats = () => {
                     </div>
                 </div>
 
+                {/* ✨ KPIs Statistiques */}
+                {statsCalc && (
+                    <div className="row mb-4">
+                        <div className="col-md-3 mb-3">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block mb-1">Contribution moyenne</small>
+                                <h5 className="mb-0 text-primary">{formatMontant(statsCalc.contribution_moyenne)}</h5>
+                            </div>
+                        </div>
+                        <div className="col-md-3 mb-3">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block mb-1">Contribution maximale</small>
+                                <h5 className="mb-0 text-success">{formatMontant(statsCalc.contribution_max)}</h5>
+                            </div>
+                        </div>
+                        <div className="col-md-3 mb-3">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block mb-1">Contribution minimale</small>
+                                <h5 className="mb-0 text-info">{formatMontant(statsCalc.contribution_min)}</h5>
+                            </div>
+                        </div>
+                        <div className="col-md-3 mb-3">
+                            <div className="text-center p-3 bg-light rounded">
+                                <small className="text-muted d-block mb-1">Taux de réussite</small>
+                                <h5 className="mb-0 text-warning">{statsCalc.taux_reussite}%</h5>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Graphiques */}
                 <div className="row">
 
                     {/* Évolution des contributions */}
-                    <div className="col-lg-8 mb-4">
+                    <div className="col-lg-12 mb-4">
                         <div className="card h-100">
                             <div className="card-header">
                                 <h5 className="card-title mb-0">
@@ -386,10 +511,10 @@ const DashboardPorteurStats = () => {
                                     Évolution des contributions
                                 </h5>
                             </div>
-                            <div className="card-body">
+                            <div className="card-body" style={{ height: '400px' }}>
                                 {stats.contributions.length > 0 ? (
                                     <Line
-                                        data={prepareContributionsChartData()}
+                                        data={prepareEvolutionChartData()}
                                         options={chartOptions}
                                     />
                                 ) : (
@@ -402,37 +527,7 @@ const DashboardPorteurStats = () => {
                         </div>
                     </div>
 
-                    {/* Sources de trafic */}
-                    <div className="col-lg-4 mb-4">
-                        <div className="card h-100">
-                            <div className="card-header">
-                                <h5 className="card-title mb-0">
-                                    <i className="bi bi-pie-chart me-2"></i>
-                                    Sources de contributions
-                                </h5>
-                            </div>
-                            <div className="card-body">
-                                {stats.contributions.length > 0 ? (
-                                    <Doughnut
-                                        data={prepareSourcesChartData()}
-                                        options={{
-                                            responsive: true,
-                                            plugins: {
-                                                legend: {
-                                                    position: 'bottom'
-                                                }
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="text-center py-5 text-muted">
-                                        <i className="bi bi-pie-chart fs-1 d-block mb-2"></i>
-                                        <p>Pas encore de données</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 {/* Tableau des contributeurs récents */}
@@ -485,7 +580,7 @@ const DashboardPorteurStats = () => {
                                                         </td>
                                                         <td>
                                                             <small className="text-muted">
-                                                                {contribution.message || 'Aucun message'}
+                                                                {contribution.message_soutien || 'Aucun message'}
                                                             </small>
                                                         </td>
                                                     </tr>

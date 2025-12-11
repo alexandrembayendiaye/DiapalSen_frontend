@@ -23,21 +23,14 @@ const CreerProjetPage = () => {
         region: '',
         ville: '',
         description_courte: '',
-
         // Étape 2 : Description détaillée
         description_complete: '',
-        impact_social: '',
-        equipe_projet: '',
-
         // Étape 3 : Budget et financement
         montant_objectif: '',
         duree_campagne: 30,
-        budget_detaille: '',
-        risques_defis: '',
-
         // Étape 4 : Médias
         image_principale: null,
-        video_presentation: '',
+        video_url: '',  // ✅ Renommé de video_presentation
         images_supplementaires: []
     })
 
@@ -69,8 +62,8 @@ const CreerProjetPage = () => {
     // Validation par étape
     const stepValidation = {
         1: ['titre', 'categorie', 'region', 'ville', 'description_courte'],
-        2: ['description_complete', 'impact_social'],
-        3: ['montant_objectif', 'budget_detaille'],
+        2: ['description_complete'],
+        3: ['montant_objectif'],
         4: [] // Étape médias optionnelle
     }
     useEffect(() => {
@@ -176,7 +169,7 @@ const CreerProjetPage = () => {
                 equipe_projet: data.equipe_projet || '',
                 budget_detaille: data.budget_detaille,
                 risques_defis: data.risques_defis || '',
-                video_presentation: data.video_presentation || ''
+                video_url: data.video_url || ''
             }
 
 
@@ -467,46 +460,6 @@ const CreerProjetPage = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3">
-                                                <label htmlFor="impact_social" className="form-label fw-medium">
-                                                    Impact social et économique *
-                                                </label>
-                                                <textarea
-                                                    className={`form-control ${errors.impact_social ? 'is-invalid' : ''}`}
-                                                    id="impact_social"
-                                                    rows="4"
-                                                    placeholder="Décrivez l'impact positif de votre projet sur la société et l'économie..."
-                                                    {...register('impact_social', {
-                                                        required: 'L\'impact social est obligatoire',
-                                                        minLength: {
-                                                            value: 50,
-                                                            message: 'L\'impact doit contenir au moins 50 caractères'
-                                                        }
-                                                    })}
-                                                />
-                                                {errors.impact_social && (
-                                                    <div className="invalid-feedback">{errors.impact_social.message}</div>
-                                                )}
-                                                <div className="form-text">
-                                                    Comment votre projet va-t-il améliorer la vie des gens ou contribuer au développement ?
-                                                </div>
-                                            </div>
-
-                                            <div className="mb-3">
-                                                <label htmlFor="equipe_projet" className="form-label fw-medium">
-                                                    Équipe du projet
-                                                </label>
-                                                <textarea
-                                                    className="form-control"
-                                                    id="equipe_projet"
-                                                    rows="3"
-                                                    placeholder="Présentez les membres de votre équipe et leurs compétences..."
-                                                    {...register('equipe_projet')}
-                                                />
-                                                <div className="form-text">
-                                                    Présentez les personnes qui travaillent sur ce projet (optionnel)
-                                                </div>
-                                            </div>
                                         </div>
                                     )}
 
@@ -574,46 +527,8 @@ const CreerProjetPage = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="mb-3">
-                                                <label htmlFor="budget_detaille" className="form-label fw-medium">
-                                                    Budget détaillé *
-                                                </label>
-                                                <textarea
-                                                    className={`form-control ${errors.budget_detaille ? 'is-invalid' : ''}`}
-                                                    id="budget_detaille"
-                                                    rows="6"
-                                                    placeholder="Détaillez comment vous allez utiliser les fonds collectés...&#10;&#10;Exemple :&#10;- Développement technique : 2 000 000 FCFA&#10;- Marketing et communication : 500 000 FCFA&#10;- Équipements : 1 000 000 FCFA&#10;- Frais divers : 200 000 FCFA"
-                                                    {...register('budget_detaille', {
-                                                        required: 'Le budget détaillé est obligatoire',
-                                                        minLength: {
-                                                            value: 50,
-                                                            message: 'Le budget doit contenir au moins 50 caractères'
-                                                        }
-                                                    })}
-                                                />
-                                                {errors.budget_detaille && (
-                                                    <div className="invalid-feedback">{errors.budget_detaille.message}</div>
-                                                )}
-                                                <div className="form-text">
-                                                    Soyez transparent sur l'utilisation des fonds pour rassurer les contributeurs
-                                                </div>
-                                            </div>
 
-                                            <div className="mb-3">
-                                                <label htmlFor="risques_defis" className="form-label fw-medium">
-                                                    Risques et défis
-                                                </label>
-                                                <textarea
-                                                    className="form-control"
-                                                    id="risques_defis"
-                                                    rows="4"
-                                                    placeholder="Quels sont les principaux défis de votre projet et comment comptez-vous les surmonter ?"
-                                                    {...register('risques_defis')}
-                                                />
-                                                <div className="form-text">
-                                                    La transparence sur les difficultés potentielles renforce la confiance (optionnel)
-                                                </div>
-                                            </div>
+
                                         </div>
                                     )}
 
@@ -722,7 +637,7 @@ const CreerProjetPage = () => {
                                                     className="form-control"
                                                     id="video_presentation"
                                                     placeholder="https://www.youtube.com/watch?v=..."
-                                                    {...register('video_presentation')}
+                                                    {...register('video_url')}
                                                 />
                                                 <div className="form-text">
                                                     Lien YouTube, Vimeo ou autre plateforme vidéo

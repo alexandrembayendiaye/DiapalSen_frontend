@@ -1,14 +1,25 @@
 // src/pages/DashboardPage.jsx
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { logout as logoutAction } from '../store/authSlice'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import authService from '../services/authService'
+
 
 
 
 const DashboardPage = () => {
     const { user, isPorteur, isContributeur, isAdmin, getFullName, getInitials, logout } = useAuth()
-
+    const [stats, setStats] = useState({
+        projets_crees: 0,
+        projets_finances: 0,
+        projets_en_cours: 0,
+        contributions: 0,
+        projets_soutenus: 0,
+        montant_total_contribue: 0,
+        notifications_non_lues: 0
+    })
+    const [loadingStats, setLoadingStats] = useState(true)
 
     const handleLogout = async () => {
         try {
@@ -33,6 +44,22 @@ const DashboardPage = () => {
     }
     useEffect(() => {
         console.log('📊 DashboardPage: Utilisateur connecté:', user)
+    }, [user])
+    useEffect(() => {
+        const loadStats = async () => {
+            try {
+                setLoadingStats(true)
+                const data = await authService.getUserStats()
+                setStats(data)
+            } catch (error) {
+                console.error('❌ Erreur chargement stats:', error)
+            } finally {
+                setLoadingStats(false)
+            }
+        }
+        if (user) {
+            loadStats()
+        }
     }, [user])
 
     // Loading si pas encore d'utilisateur
@@ -309,30 +336,34 @@ const DashboardPage = () => {
                                 <div className="row text-center">
                                     <div className="col-md-3 col-6 mb-3">
                                         <div className="p-3">
-                                            <h4 className="text-primary mb-1">0</h4>
-                                            <small className="text-muted">
+                                            <h4 className="text-primary mb-1">
+                                                {loadingStats ? '...' : (isPorteur() ? stats.projets_crees : stats.contributions)}
+                                            </h4>                                            <small className="text-muted">
                                                 {isPorteur() ? 'Projets créés' : 'Contributions'}
                                             </small>
                                         </div>
                                     </div>
                                     <div className="col-md-3 col-6 mb-3">
                                         <div className="p-3">
-                                            <h4 className="text-success mb-1">0</h4>
-                                            <small className="text-muted">
+                                            <h4 className="text-success mb-1">
+                                                {loadingStats ? '...' : (isPorteur() ? stats.projets_finances : stats.projets_soutenus)}
+                                            </h4>                                            <small className="text-muted">
                                                 {isPorteur() ? 'Projets financés' : 'Projets soutenus'}
                                             </small>
                                         </div>
                                     </div>
                                     <div className="col-md-3 col-6 mb-3">
                                         <div className="p-3">
-                                            <h4 className="text-warning mb-1">0</h4>
-                                            <small className="text-muted">En cours</small>
+                                            <h4 className="text-warning mb-1">
+                                                {loadingStats ? '...' : stats.projets_en_cours}
+                                            </h4>                                            <small className="text-muted">En cours</small>
                                         </div>
                                     </div>
                                     <div className="col-md-3 col-6 mb-3">
                                         <div className="p-3">
-                                            <h4 className="text-info mb-1">0</h4>
-                                            <small className="text-muted">Notifications</small>
+                                            <h4 className="text-info mb-1">
+                                                {loadingStats ? '...' : stats.notifications_non_lues}
+                                            </h4>                                            <small className="text-muted">Notifications</small>
                                         </div>
                                     </div>
                                 </div>
