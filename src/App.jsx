@@ -20,6 +20,7 @@ import MesContributionsPage from './pages/contributions/MesContributionsPage'
 import DashboardPorteurStats from './pages/porteur/DashboardPorteurStats'
 import GestionContributeurs from './pages/porteur/GestionContributeurs'
 import AdminProjetsEnAttente from './pages/admin/AdminProjetsEnAttente';
+import { Error404, Error500, Error403 } from './pages/ErrorPage';
 
 
 // Import Bootstrap CSS
@@ -28,15 +29,6 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './styles/admin.css';
 
-// Page 404
-const NotFoundPage = () => (
-  <div className="container py-5">
-    <div className="text-center">
-      <h2>404 - Page introuvable</h2>
-      <p>Cette page n'existe pas encore.</p>
-    </div>
-  </div>
-)
 // ✅ AJOUTEZ ce composant de protection dans App.jsx
 
 const AdminProtectedRoute = ({ children }) => {
@@ -212,6 +204,9 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
           <Route path="/admin/validations" element={<AdminHistorique />} /> */}
+
+          {/* Route 404 - Doit être en dernier */}
+          <Route path="*" element={<Error404 />} />
         </Routes>
       </main>
 
