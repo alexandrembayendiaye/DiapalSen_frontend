@@ -20,6 +20,7 @@ import ModifierProjetPage from './pages/projects/ModifierProjetPage'
 import MesContributionsPage from './pages/contributions/MesContributionsPage'
 import DashboardPorteurStats from './pages/porteur/DashboardPorteurStats'
 import GestionContributeurs from './pages/porteur/GestionContributeurs'
+import MesContributeursPage from './pages/porteur/MesContributeursPage'
 import AdminProjetsEnAttente from './pages/admin/AdminProjetsEnAttente';
 import { Error404, Error500, Error403 } from './pages/ErrorPage';
 
@@ -200,6 +201,7 @@ function App() {
           {/* Routes porteur */}
           <Route path="/mes-projets/:projectId/stats" element={<DashboardPorteurStats />} />
           <Route path="/mes-projets/:projectId/contributeurs" element={<GestionContributeurs />} />
+          <Route path="/contributeurs" element={<MesContributeursPage />} />
 
           {/* ✅ ROUTES ADMIN SIMPLIFIÉES TEMPORAIRES */}
           {/* Routes admin PROTÉGÉES */}

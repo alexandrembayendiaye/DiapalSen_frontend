@@ -5,16 +5,14 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import projectsService from '../../services/projectsService'
 import toast from 'react-hot-toast'
 import { getProjectListImage } from '../../utils/imageUtils'
+import { formatMontant } from '../../utils/formatUtils'
 import interactionsService from '../../services/interactionsService'
 import PartageButtons from '../../components/interactions/PartageButtons'
-
-
-
-
 
 const ProjectsListPage = () => {
     const { isAuthenticated } = useAuth()
     const [projects, setProjects] = useState([])
+    const [categories, setCategories] = useState([])
     const [loading, setLoading] = useState(true)
     const [filters, setFilters] = useState({
         search: '',
@@ -24,22 +22,26 @@ const ProjectsListPage = () => {
     })
     const [favoris, setFavoris] = useState([])
 
-
-    // Simuler des projets pour l'instant (plus tard on appellera l'API)
-
-    // ... dans le composant, remplacer useEffect par :
-
-    // Charger les projets depuis l'API Django
+    // Charger les projets et catégories depuis l'API Django
     useEffect(() => {
         loadProjects()
+        loadCategories()
         loadFavoris()
     }, [isAuthenticated])
+
+    const loadCategories = async () => {
+        try {
+            const data = await projectsService.getCategories()
+            setCategories(data.results || data || [])
+        } catch (error) {
+            console.error('Erreur chargement catégories:', error)
+        }
+    }
 
     const loadProjects = async () => {
         try {
             setLoading(true)
-            const response = await projectsService.getProjects()  // Sans paramètres
-            // Django retourne {count, results} - utiliser response.results
+            const response = await projectsService.getProjects()
             const projects = response.results || []
 
             // Adapter les données Django
@@ -67,6 +69,7 @@ const ProjectsListPage = () => {
             setLoading(false)
         }
     }
+
     const loadFavoris = async () => {
         if (!isAuthenticated) return
 
@@ -78,6 +81,7 @@ const ProjectsListPage = () => {
             console.error('Erreur chargement favoris:', error)
         }
     }
+
     const toggleFavoriCard = async (projectId) => {
         if (!isAuthenticated) {
             toast.error('Connectez-vous pour ajouter aux favoris')
@@ -174,7 +178,7 @@ const ProjectsListPage = () => {
                                     />
                                 </div>
 
-                                {/* Catégorie */}
+                                {/* Catégorie - dynamique depuis l'API */}
                                 <div className="mb-3">
                                     <label className="form-label fw-medium">Catégorie</label>
                                     <select
@@ -183,11 +187,11 @@ const ProjectsListPage = () => {
                                         onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                                     >
                                         <option value="">Toutes les catégories</option>
-                                        <option value="Technologie">Technologie</option>
-                                        <option value="Agriculture">Agriculture</option>
-                                        <option value="Éducation">Éducation</option>
-                                        <option value="Santé">Santé</option>
-                                        <option value="Artisanat">Artisanat</option>
+                                        {categories.map(cat => (
+                                            <option key={cat.id} value={cat.nom}>
+                                                {cat.icone} {cat.nom}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -204,6 +208,16 @@ const ProjectsListPage = () => {
                                         <option value="Thiès">Thiès</option>
                                         <option value="Saint-Louis">Saint-Louis</option>
                                         <option value="Tambacounda">Tambacounda</option>
+                                        <option value="Diourbel">Diourbel</option>
+                                        <option value="Fatick">Fatick</option>
+                                        <option value="Kaolack">Kaolack</option>
+                                        <option value="Kolda">Kolda</option>
+                                        <option value="Louga">Louga</option>
+                                        <option value="Matam">Matam</option>
+                                        <option value="Ziguinchor">Ziguinchor</option>
+                                        <option value="Kaffrine">Kaffrine</option>
+                                        <option value="Kédougou">Kédougou</option>
+                                        <option value="Sédhiou">Sédhiou</option>
                                     </select>
                                 </div>
 
@@ -279,7 +293,7 @@ const ProjectsListPage = () => {
                                                 {project.description_courte}
                                             </p>
 
-                                            {/* Métaannées */}
+                                            {/* Métadonnées */}
                                             <div className="mb-3">
                                                 <small className="text-muted">
                                                     <i className="bi bi-geo-alt me-1"></i>
@@ -303,7 +317,7 @@ const ProjectsListPage = () => {
                                                 <div className="row text-center small">
                                                     <div className="col-4">
                                                         <strong className="text-success">
-                                                            {(project.montant_collecte / 1000000).toFixed(1)}M
+                                                            {formatMontant(project.montant_collecte, false)}
                                                         </strong>
                                                         <br />collectés
                                                     </div>
@@ -336,7 +350,8 @@ const ProjectsListPage = () => {
                                                 >
                                                     <i className={`bi ${favoris.includes(project.id) ? 'bi-heart-fill' : 'bi-heart'}`}></i>
                                                 </button>
-                                                <PartageButtons projet={project} variant="modal" className="" />                                            </div>
+                                                <PartageButtons projet={project} variant="modal" className="" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

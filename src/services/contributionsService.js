@@ -77,6 +77,21 @@ const contributionsService = {
             console.error('❌ Erreur récupération contributions projet:', error.response?.data);
             throw error.response?.data || error;
         }
+    },
+
+    // 👥 MES CONTRIBUTEURS (pour le porteur)
+    async getMesContributeurs() {
+        try {
+            console.log('🔄 Récupération de mes contributeurs...');
+
+            const response = await api.get('/contributions/mes-contributeurs/');
+
+            console.log('✅ Contributeurs récupérés:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('❌ Erreur récupération contributeurs:', error.response?.data);
+            throw error.response?.data || error;
+        }
     }
 };
 
