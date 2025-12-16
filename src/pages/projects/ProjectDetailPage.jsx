@@ -6,6 +6,7 @@ import projectsService from '../../services/projectsService'
 import toast from 'react-hot-toast'
 import ContributionModal from '../../components/contributions/ContributionModal'
 import { getProjectImages } from '../../utils/imageUtils'
+import { formatMontant } from '../../utils/formatUtils'
 import CommentairesSection from '../../components/interactions/CommentairesSection'
 import interactionsService from '../../services/interactionsService'
 import PartageButtons from '../../components/interactions/PartageButtons'
@@ -215,39 +216,14 @@ const ProjectDetailPage = () => {
                             </div>
                         </div>
 
-                        {/* Images/Vidéo */}
+                        {/* Image principale */}
                         <div className="mb-4">
-                            <div className="row">
-                                <div className="col-12 mb-3">
-                                    <img
-                                        src={project.images[0]}
-                                        className="img-fluid rounded shadow"
-                                        alt="Image principale"
-                                    />
-                                </div>
-                                <div className="col-4">
-                                    <img
-                                        src={project.images[1]}
-                                        className="img-fluid rounded"
-                                        alt="Image 2"
-                                    />
-                                </div>
-                                <div className="col-4">
-                                    <img
-                                        src={project.images[2]}
-                                        className="img-fluid rounded"
-                                        alt="Image 3"
-                                    />
-                                </div>
-                                <div className="col-4">
-                                    <div className="bg-light rounded d-flex align-items-center justify-content-center h-100">
-                                        <span className="text-muted">
-                                            <i className="bi bi-play-circle fs-1"></i>
-                                            <br />Voir la vidéo
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                            <img
+                                src={project.images[0]}
+                                className="img-fluid rounded shadow w-100"
+                                alt="Image principale"
+                                style={{ maxHeight: '450px', objectFit: 'cover' }}
+                            />
                         </div>
 
                         {/* Onglets de contenu */}
@@ -314,10 +290,10 @@ const ProjectDetailPage = () => {
                                     {/* Montant collecté */}
                                     <div className="text-center mb-4">
                                         <h3 className="h2 text-success mb-1">
-                                            {(project.montant_collecte / 1000000).toFixed(1)}M FCFA
+                                            {formatMontant(project.montant_collecte)}
                                         </h3>
                                         <p className="text-muted mb-1">
-                                            collectés sur {(project.montant_objectif / 1000000).toFixed(1)}M FCFA
+                                            collectés sur {formatMontant(project.montant_objectif)}
                                         </p>
                                         <div className="progress mb-2" style={{ height: '12px' }}>
                                             <div

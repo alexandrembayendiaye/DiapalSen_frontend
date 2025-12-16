@@ -17,11 +17,15 @@ import ProjectDetailPage from './pages/projects/ProjectDetailPage'
 import MesProjetsPage from './pages/projects/MesProjetsPage'
 import CreerProjetPage from './pages/projects/CreerProjetPage'
 import ModifierProjetPage from './pages/projects/ModifierProjetPage'
+import ProjetCommentaireAdminPage from './pages/projects/ProjetCommentaireAdminPage'
 import MesContributionsPage from './pages/contributions/MesContributionsPage'
 import DashboardPorteurStats from './pages/porteur/DashboardPorteurStats'
 import GestionContributeurs from './pages/porteur/GestionContributeurs'
 import MesContributeursPage from './pages/porteur/MesContributeursPage'
+import ProfilPage from './pages/user/ProfilPage'
+import NotificationsPage from './pages/notifications/NotificationsPage'
 import AdminProjetsEnAttente from './pages/admin/AdminProjetsEnAttente';
+import AdminProjetDetail from './pages/admin/AdminProjetDetail';
 import { Error404, Error500, Error403 } from './pages/ErrorPage';
 
 
@@ -191,12 +195,20 @@ function App() {
           <Route path="/projets" element={<ProjectsListPage />} />
           <Route path="/projets/:id" element={<ProjectDetailPage />} />
           <Route path="/mes-projets" element={<MesProjetsPage />} />
+          <Route path="/mes-projets/:projectId" element={<Navigate to="/mes-projets" replace />} />
           <Route path="/projets/creer" element={<CreerProjetPage />} />
           <Route path="/projets/:projectId/modifier" element={<ModifierProjetPage />} />
+          <Route path="/mes-projets/:projectId/commentaires" element={<ProjetCommentaireAdminPage />} />
 
 
           {/* Contributions */}
           <Route path="/mes-contributions" element={<MesContributionsPage />} />
+
+          {/* Profil utilisateur */}
+          <Route path="/profil" element={<ProfilPage />} />
+
+          {/* Notifications */}
+          <Route path="/notifications" element={<NotificationsPage />} />
 
           {/* Routes porteur */}
           <Route path="/mes-projets/:projectId/stats" element={<DashboardPorteurStats />} />
@@ -206,6 +218,8 @@ function App() {
           {/* ✅ ROUTES ADMIN SIMPLIFIÉES TEMPORAIRES */}
           {/* Routes admin PROTÉGÉES */}
           <Route path="/admin/projets/en-attente" element={<AdminProjetsEnAttente />} />
+          <Route path="/admin/projets/:projectId/detail" element={<AdminProjetDetail />} />
+          <Route path="/admin/projets/:projectId/valider" element={<AdminProjetDetail />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
           <Route path="/admin/validations" element={<AdminHistorique />} /> */}

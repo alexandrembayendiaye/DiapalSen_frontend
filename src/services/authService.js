@@ -56,6 +56,35 @@ const authService = {
         }
     },
 
+    // ✏️ MODIFIER PROFIL
+    async updateProfile(profileData) {
+        try {
+            console.log('🔄 Mise à jour du profil...', profileData);
+
+            // Si on a une photo, utiliser FormData
+            let data = profileData;
+            let headers = {};
+
+            if (profileData.photo_profil instanceof File) {
+                const formData = new FormData();
+                Object.keys(profileData).forEach(key => {
+                    if (profileData[key] !== null && profileData[key] !== undefined) {
+                        formData.append(key, profileData[key]);
+                    }
+                });
+                data = formData;
+                headers = { 'Content-Type': 'multipart/form-data' };
+            }
+
+            const response = await api.put('/users/profile/', data, { headers });
+            console.log('✅ Profil mis à jour:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('❌ Erreur mise à jour profil:', error.response?.data);
+            throw error.response?.data || error;
+        }
+    },
+
     // 📊 DASHBOARD UTILISATEUR
     async getDashboard() {
         try {
@@ -89,7 +118,7 @@ const authService = {
             // Envoyer le refresh token si disponible
             if (refreshToken) {
                 await api.post('/users/logout/', {
-                    refresh: refreshToken  // ← AJOUTER CETTE LIGNE
+                    refresh: refreshToken
                 });
             }
 

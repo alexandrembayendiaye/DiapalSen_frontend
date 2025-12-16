@@ -1,6 +1,7 @@
 // src/components/layout/Header.jsx
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import NotificationDropdown from '../notifications/NotificationDropdown'
 
 const Header = () => {
     const { isAuthenticated, user, logout } = useAuth()
@@ -85,15 +86,9 @@ const Header = () => {
                                     </Link>
                                 </li>
 
-                                <li className="nav-item">
-                                    <Link className="nav-link position-relative" to="/notifications">
-                                        <i className="bi bi-bell me-1"></i>
-                                        Notifications
-                                        <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                            3
-                                            <span className="visually-hidden">notifications non lues</span>
-                                        </span>
-                                    </Link>
+                                {/* Notifications Dropdown */}
+                                <li className="nav-item d-flex align-items-center">
+                                    <NotificationDropdown />
                                 </li>
 
                                 {/* Menu dropdown utilisateur */}
@@ -137,9 +132,9 @@ const Header = () => {
                                             </Link>
                                         </li>
                                         <li>
-                                            <Link className="dropdown-item" to="/parametres">
-                                                <i className="bi bi-gear me-2"></i>
-                                                Paramètres
+                                            <Link className="dropdown-item" to="/notifications">
+                                                <i className="bi bi-bell me-2"></i>
+                                                Notifications
                                             </Link>
                                         </li>
                                         <li><hr className="dropdown-divider" /></li>

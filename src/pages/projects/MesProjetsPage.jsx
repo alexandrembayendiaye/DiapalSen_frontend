@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import toast from 'react-hot-toast'
 import projectsService from '../../services/projectsService'
+import { formatMontant } from '../../utils/formatUtils'
 
 const MesProjetsPage = () => {
     const { user, isPorteur } = useAuth()
@@ -21,6 +22,24 @@ const MesProjetsPage = () => {
         statut: '',
         search: ''
     })
+
+    // Modal pour afficher les commentaires de l'admin
+    const [showModalCommentaire, setShowModalCommentaire] = useState(false)
+    const [projetCommentaire, setProjetCommentaire] = useState(null)
+
+    // Modal de confirmation de soumission
+    const [showModalSoumission, setShowModalSoumission] = useState(false)
+    const [projetASoumettre, setProjetASoumettre] = useState(null)
+
+    const ouvrirModalCommentaire = (projet) => {
+        setProjetCommentaire(projet)
+        setShowModalCommentaire(true)
+    }
+
+    const ouvrirModalSoumission = (projetId) => {
+        setProjetASoumettre(projetId)
+        setShowModalSoumission(true)
+    }
 
     // Charger les vrais projets depuis l'API Django
     useEffect(() => {
@@ -102,7 +121,8 @@ const MesProjetsPage = () => {
             en_attente: 'bg-warning text-dark',
             actif: 'bg-success',
             termine: 'bg-info text-dark',
-            rejete: 'bg-danger'
+            rejete: 'bg-danger',
+            modification_demandee: 'bg-warning text-dark',
         }
 
         const labels = {
@@ -110,7 +130,8 @@ const MesProjetsPage = () => {
             en_attente: 'En attente',
             actif: 'Actif',
             termine: 'Terminé',
-            rejete: 'Rejeté'
+            rejete: 'Rejeté',
+            modification_demandee: '✏️ Modification demandée',
         }
 
         return (
@@ -121,14 +142,14 @@ const MesProjetsPage = () => {
     }
 
     // Soumettre un projet pour validation
-    const handleSubmitProject = async (projectId) => {
-        if (!confirm('Êtes-vous sûr de vouloir soumettre ce projet pour validation ? Vous ne pourrez plus le modifier.')) {
-            return
-        }
+    const handleSubmitProject = async () => {
+        if (!projetASoumettre) return
 
         try {
-            await projectsService.submitProject(projectId)
+            await projectsService.submitProject(projetASoumettre)
             toast.success('Projet soumis pour validation !')
+            setShowModalSoumission(false)
+            setProjetASoumettre(null)
             loadMesProjets() // Recharger la liste
         } catch (error) {
             console.error('❌ Erreur soumission projet:', error)
@@ -152,7 +173,7 @@ const MesProjetsPage = () => {
                         </Link>
                         <button
                             className={`${baseButtonClass} btn-primary`}
-                            onClick={() => handleSubmitProject(projet.id)}
+                            onClick={() => ouvrirModalSoumission(projet.id)}
                             title="Soumettre pour validation"
                         >
                             <i className="bi bi-send"></i>
@@ -260,23 +281,43 @@ const MesProjetsPage = () => {
                     </div>
 
                 )
+
+            case 'modification_demandee':
+                return (
+                    <div className="d-flex gap-1">
+                        <button
+                            className={`${baseButtonClass} btn-info`}
+                            onClick={() => ouvrirModalCommentaire(projet)}
+                            title="Voir la demande de l'admin"
+                        >
+                            <i className="bi bi-chat-text"></i>
+                        </button>
+                        <Link
+                            to={`/projets/${projet.id}/modifier`}
+                            className={`${baseButtonClass} btn-warning`}
+                            title="Modifier le projet"
+                        >
+                            <i className="bi bi-pencil"></i>
+                        </Link>
+                        <button
+                            className={`${baseButtonClass} btn-primary`}
+                            onClick={() => ouvrirModalSoumission(projet.id)}
+                            title="Resoumettre pour validation"
+                        >
+                            <i className="bi bi-send"></i>
+                        </button>
+                    </div>
+                )
             case 'rejete':
                 return (
                     <div className="d-flex gap-1">
-                        <Link
-                            to={`/projets/${projet.id}`}
-                            className={`${baseButtonClass} btn-outline-primary`}
-                            title="Voir le projet"
+                        <button
+                            className={`${baseButtonClass} btn-secondary`}
+                            onClick={() => ouvrirModalCommentaire(projet)}
+                            title="Voir le motif de rejet"
                         >
-                            <i className="bi bi-eye"></i>
-                        </Link>
-                        <Link
-                            to={`/mes-projets/${projet.id}/stats`}
-                            className={`${baseButtonClass} btn-warning`}
-                            title="Analyser pour améliorer"
-                        >
-                            <i className="bi bi-bar-chart"></i>
-                        </Link>
+                            <i className="bi bi-chat-text"></i>
+                        </button>
                     </div>
                 )
             default:
@@ -434,6 +475,7 @@ const MesProjetsPage = () => {
                                     <option value="actif">✅ Actifs</option>
                                     <option value="termine">🎯 Terminés</option>
                                     <option value="rejete">❌ Rejetés</option>
+                                    <option value="modification_demandee">✏️ Modification demandée</option>
                                 </select>
                             </div>
                             <div className="col-md-2">
@@ -513,12 +555,12 @@ const MesProjetsPage = () => {
                                                         </td>
                                                         <td>
                                                             <strong className="text-primary">
-                                                                {(projet.montant_objectif / 1000000).toFixed(1)}M FCFA
+                                                                {formatMontant(projet.montant_objectif)}
                                                             </strong>
                                                         </td>
                                                         <td>
                                                             <span className="text-success fw-medium">
-                                                                {(projet.montant_collecte / 1000000).toFixed(2)}M FCFA
+                                                                {formatMontant(projet.montant_collecte)}
                                                             </span>
                                                             {projet.nombre_contributeurs > 0 && (
                                                                 <div>
@@ -592,6 +634,139 @@ const MesProjetsPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal Commentaire Admin */}
+            {showModalCommentaire && projetCommentaire && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className={`modal-header ${projetCommentaire.statut === 'rejete' ? 'bg-danger' : 'bg-warning'} text-white`}>
+                                <h5 className="modal-title">
+                                    <i className={`bi ${projetCommentaire.statut === 'rejete' ? 'bi-x-circle' : 'bi-info-circle'} me-2`}></i>
+                                    {projetCommentaire.statut === 'rejete' ? 'Motif de rejet' : 'Demande de modification'}
+                                </h5>
+                                <button
+                                    className="btn-close btn-close-white"
+                                    onClick={() => setShowModalCommentaire(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="mb-3">
+                                    <h6 className="text-muted mb-1">Projet concerné :</h6>
+                                    <p className="fw-bold mb-3">{projetCommentaire.titre}</p>
+                                </div>
+
+                                <div className="alert alert-light border">
+                                    <h6 className="mb-2">
+                                        <i className="bi bi-person-badge me-2 text-primary"></i>
+                                        Commentaire de l'administrateur :
+                                    </h6>
+                                    <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                                        {projetCommentaire.commentaire_admin || 'Aucun commentaire disponible.'}
+                                    </p>
+                                </div>
+
+                                {projetCommentaire.motif_rejet && (
+                                    <div className="alert alert-danger border mt-3">
+                                        <h6 className="mb-2">
+                                            <i className="bi bi-exclamation-triangle me-2"></i>
+                                            Motif détaillé :
+                                        </h6>
+                                        <p className="mb-0" style={{ whiteSpace: 'pre-wrap' }}>
+                                            {projetCommentaire.motif_rejet}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {projetCommentaire.statut === 'modification_demandee' && (
+                                    <div className="alert alert-info mt-3">
+                                        <i className="bi bi-lightbulb me-2"></i>
+                                        <strong>Conseil :</strong> Prenez en compte les remarques de l'administrateur
+                                        pour modifier votre projet, puis resoumettez-le pour une nouvelle validation.
+                                    </div>
+                                )}
+
+                                {projetCommentaire.statut === 'rejete' && (
+                                    <div className="alert alert-secondary mt-3">
+                                        <i className="bi bi-info-circle me-2"></i>
+                                        Ce projet a été définitivement rejeté. Si vous pensez que c'est une erreur,
+                                        veuillez contacter l'administration.
+                                    </div>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowModalCommentaire(false)}
+                                >
+                                    Fermer
+                                </button>
+                                {projetCommentaire.statut === 'modification_demandee' && (
+                                    <Link
+                                        to={`/projets/${projetCommentaire.id}/modifier`}
+                                        className="btn btn-warning"
+                                        onClick={() => setShowModalCommentaire(false)}
+                                    >
+                                        <i className="bi bi-pencil me-2"></i>
+                                        Modifier le projet
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Confirmation Soumission */}
+            {showModalSoumission && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header bg-primary text-white">
+                                <h5 className="modal-title">
+                                    <i className="bi bi-send me-2"></i>
+                                    Confirmer la soumission
+                                </h5>
+                                <button
+                                    className="btn-close btn-close-white"
+                                    onClick={() => {
+                                        setShowModalSoumission(false)
+                                        setProjetASoumettre(null)
+                                    }}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="alert alert-warning">
+                                    <i className="bi bi-exclamation-triangle me-2"></i>
+                                    <strong>Attention :</strong> Une fois soumis, vous ne pourrez plus modifier ce projet
+                                    jusqu'à ce qu'un administrateur l'ait examiné.
+                                </div>
+                                <p>
+                                    Êtes-vous sûr de vouloir soumettre ce projet pour validation ?
+                                </p>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => {
+                                        setShowModalSoumission(false)
+                                        setProjetASoumettre(null)
+                                    }}
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleSubmitProject}
+                                >
+                                    <i className="bi bi-send me-2"></i>
+                                    Soumettre pour validation
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <style jsx>{`
                 .hover-shadow:hover {

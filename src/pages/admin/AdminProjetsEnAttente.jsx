@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import adminService from '../../services/adminService';
 
 const AdminProjetsEnAttente = () => {
@@ -47,19 +48,27 @@ const AdminProjetsEnAttente = () => {
     };
 
     // ✅ FONCTION DEMANDER INFOS
+    // ✅ FONCTION DEMANDER INFOS
     const demanderInfos = async () => {
         try {
             if (!infosForm.demande_informations.trim()) {
-                alert('Veuillez préciser les informations demandées');
+                toast.error('Veuillez préciser les informations demandées');
                 return;
             }
 
-            alert('✅ Demande d\'informations envoyée au porteur');
+            // Appel API pour demander des infos supplémentaires
+            await adminService.validerProjet(projetSelectionne.id, {
+                decision: 'infos_demandees',
+                commentaire: infosForm.demande_informations
+            });
+
+            await loadProjetsEnAttente();
             setShowModalInfos(false);
             setProjetSelectionne(null);
+            toast.success('Demande d\'informations envoyée au porteur');
         } catch (error) {
             console.error('Erreur demande infos:', error);
-            alert('❌ Erreur lors de l\'envoi');
+            toast.error('Erreur lors de l\'envoi');
         }
     };
 
@@ -67,7 +76,7 @@ const AdminProjetsEnAttente = () => {
     const validerProjet = async () => {
         try {
             if (!validationForm.commentaire.trim()) {
-                alert('Le commentaire est obligatoire');
+                toast.error('Le commentaire est obligatoire');
                 return;
             }
 
@@ -80,10 +89,10 @@ const AdminProjetsEnAttente = () => {
             await loadProjetsEnAttente();
             setShowModalValidation(false);
             setProjetSelectionne(null);
-            alert('✅ Projet validé avec succès !');
+            toast.success('Projet validé avec succès !');
         } catch (error) {
             console.error('Erreur validation:', error);
-            alert('❌ Erreur lors de la validation');
+            toast.error('Erreur lors de la validation');
         }
     };
 
@@ -91,7 +100,7 @@ const AdminProjetsEnAttente = () => {
     const rejeterProjet = async () => {
         try {
             if (!rejetForm.motif_rejet.trim() || !rejetForm.commentaire.trim()) {
-                alert('Le motif de rejet et le commentaire sont obligatoires');
+                toast.error('Le motif de rejet et le commentaire sont obligatoires');
                 return;
             }
 
@@ -104,10 +113,10 @@ const AdminProjetsEnAttente = () => {
             await loadProjetsEnAttente();
             setShowModalRejet(false);
             setProjetSelectionne(null);
-            alert('✅ Projet rejeté');
+            toast.success('Projet rejeté');
         } catch (error) {
             console.error('Erreur rejet:', error);
-            alert('❌ Erreur lors du rejet');
+            toast.error('Erreur lors du rejet');
         }
     };
 
@@ -325,6 +334,13 @@ const AdminProjetsEnAttente = () => {
                                         </td>
                                         <td className="text-center pe-4 py-3">
                                             <div className="btn-group" role="group">
+                                                <Link
+                                                    to={`/admin/projets/${projet.id}/detail`}
+                                                    className="btn btn-sm btn-info shadow-sm"
+                                                    title="Voir les détails du projet"
+                                                >
+                                                    <i className="bi bi-eye"></i>
+                                                </Link>
                                                 <button
                                                     className="btn btn-sm btn-success shadow-sm"
                                                     onClick={() => ouvrirModalValidation(projet)}

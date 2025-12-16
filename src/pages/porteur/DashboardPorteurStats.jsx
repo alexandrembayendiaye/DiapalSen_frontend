@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import projectsService from '../../services/projectsService'
 import contributionsService from '../../services/contributionsService'
 import toast from 'react-hot-toast'
+import { formatMontant } from '../../utils/formatUtils'
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -46,7 +47,7 @@ const COLORS = {
 }
 
 // ✨ Helper pour formater les montants
-const formatMontant = (montant) => {
+const formatMontantLocal = (montant) => {
     return new Intl.NumberFormat('fr-FR').format(Math.round(montant)) + ' FCFA'
 }
 
@@ -397,7 +398,7 @@ const DashboardPorteurStats = () => {
                                     <div>
                                         <h6 className="card-title opacity-75">Montant collecté</h6>
                                         <h3 className="mb-0">
-                                            {(project.montant_collecte / 1000000).toFixed(1)}M FCFA
+                                            {formatMontant(project.montant_collecte)}
                                         </h3>
                                         <small className="opacity-75">
                                             {project.pourcentage_atteint}% de l'objectif

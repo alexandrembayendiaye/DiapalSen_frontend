@@ -189,7 +189,7 @@ const CreerProjetPage = () => {
                 }
             }
 
-            toast.success('Projet créé avec succès ! En attente de validation.')
+            toast.success('Projet créé en brouillon ! Vous pouvez le soumettre pour validation depuis "Mes Projets".')
             navigate('/mes-projets')
         } catch (error) {
             console.error('❌ Erreur création projet:', error)
@@ -662,13 +662,13 @@ const CreerProjetPage = () => {
                                         <div className="step-content">
                                             <h4 className="mb-4">
                                                 <i className="bi bi-check-circle text-primary me-2"></i>
-                                                Révision et soumission
+                                                Révision et création
                                             </h4>
 
-                                            <div className="alert alert-warning">
-                                                <i className="bi bi-exclamation-triangle me-2"></i>
-                                                <strong>Vérification finale :</strong> Une fois soumis, votre projet sera examiné par notre équipe.
-                                                Vous pourrez le modifier tant qu'il est en statut "brouillon".
+                                            <div className="alert alert-info">
+                                                <i className="bi bi-info-circle me-2"></i>
+                                                <strong>Création en brouillon :</strong> Votre projet sera sauvegardé en brouillon.
+                                                Vous pourrez ensuite le soumettre pour validation depuis votre espace "Mes Projets".
                                             </div>
 
                                             {/* Récapitulatif */}
@@ -679,7 +679,7 @@ const CreerProjetPage = () => {
                                                     <div className="row">
                                                         <div className="col-md-6">
                                                             <strong>Titre :</strong> {watch('titre')}<br />
-                                                            <strong>Catégorie :</strong> {watch('categorie')}<br />
+                                                            <strong>Catégorie :</strong> {categories.find(c => String(c.value) === String(watch('categorie')))?.label || 'Non sélectionnée'}<br />
                                                             <strong>Localisation :</strong> {watch('ville')}, {watch('region')}<br />
                                                         </div>
                                                         <div className="col-md-6">
@@ -735,7 +735,7 @@ const CreerProjetPage = () => {
                                                 ) : (
                                                     <>
                                                         <i className="bi bi-send me-2"></i>
-                                                        Soumettre le projet
+                                                        Créer le projet
                                                     </>
                                                 )}
                                             </button>
