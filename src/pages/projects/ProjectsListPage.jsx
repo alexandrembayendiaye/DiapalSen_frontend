@@ -1,6 +1,6 @@
 // src/pages/projects/ProjectsListPage.jsx
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import projectsService from '../../services/projectsService'
 import toast from 'react-hot-toast'
@@ -10,7 +10,8 @@ import interactionsService from '../../services/interactionsService'
 import PartageButtons from '../../components/interactions/PartageButtons'
 
 const ProjectsListPage = () => {
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated, isPorteur, isContributeur, getProfile } = useAuth()
+    const navigate = useNavigate()
     const [projects, setProjects] = useState([])
     const [categories, setCategories] = useState([])
     const [loading, setLoading] = useState(true)
@@ -21,6 +22,26 @@ const ProjectsListPage = () => {
         sort: 'recent'
     })
     const [favoris, setFavoris] = useState([])
+    const [showBecomePorteurModal, setShowBecomePorteurModal] = useState(false)
+    const [loadingProfileChange, setLoadingProfileChange] = useState(false)
+
+    // Fonction pour gérer le changement de profil (contributeur -> porteur)
+    const handleBecomePorteur = async () => {
+        try {
+            setLoadingProfileChange(true)
+            const authService = (await import('../../services/authService')).default
+            await authService.changeProfileType()
+            toast.success('Félicitations ! Vous êtes maintenant un porteur de projet 🎉')
+            setShowBecomePorteurModal(false)
+            await getProfile()
+            navigate('/projets/creer')
+        } catch (error) {
+            console.error('Erreur changement de profil:', error)
+            toast.error(error.error || 'Erreur lors du changement de profil')
+        } finally {
+            setLoadingProfileChange(false)
+        }
+    }
 
     // Charger les projets et catégories depuis l'API Django
     useEffect(() => {
@@ -141,11 +162,20 @@ const ProjectsListPage = () => {
                             </p>
                         </div>
                         <div className="col-lg-4 text-lg-end">
-                            {isAuthenticated && (
+                            {isAuthenticated && isPorteur() && (
                                 <Link to="/projets/creer" className="btn btn-light">
                                     <i className="bi bi-plus-circle me-2"></i>
                                     Créer un projet
                                 </Link>
+                            )}
+                            {isAuthenticated && isContributeur() && (
+                                <button
+                                    onClick={() => setShowBecomePorteurModal(true)}
+                                    className="btn btn-light"
+                                >
+                                    <i className="bi bi-plus-circle me-2"></i>
+                                    Créer un projet
+                                </button>
                             )}
                         </div>
                     </div>
@@ -380,6 +410,75 @@ const ProjectsListPage = () => {
                     </div>
                 </div>
             </div>
+            {showBecomePorteurModal && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header bg-success text-white">
+                                <h5 className="modal-title">
+                                    <i className="bi bi-person-plus me-2"></i>
+                                    Devenir Porteur de Projet
+                                </h5>
+                                <button
+                                    className="btn-close btn-close-white"
+                                    onClick={() => setShowBecomePorteurModal(false)}
+                                    disabled={loadingProfileChange}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="text-center mb-4">
+                                    <div className="bg-success bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                        style={{ width: '80px', height: '80px' }}>
+                                        <i className="bi bi-rocket-takeoff text-success fs-1"></i>
+                                    </div>
+                                    <h5 className="text-success">Prêt à lancer votre projet ?</h5>
+                                </div>
+
+                                <div className="alert alert-info">
+                                    <i className="bi bi-info-circle me-2"></i>
+                                    <strong>En devenant porteur de projet :</strong>
+                                    <ul className="mb-0 mt-2">
+                                        <li>Vous pourrez créer et gérer vos propres projets</li>
+                                        <li>Vous pourrez recevoir des contributions</li>
+                                        <li>Vous aurez accès à un tableau de bord dédié</li>
+                                    </ul>
+                                </div>
+
+                                <div className="alert alert-warning">
+                                    <i className="bi bi-exclamation-triangle me-2"></i>
+                                    <strong>Note :</strong> Ce changement est définitif. Vous conservez la possibilité de contribuer aux projets des autres.
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowBecomePorteurModal(false)}
+                                    disabled={loadingProfileChange}
+                                >
+                                    Annuler
+                                </button>
+                                <button
+                                    className="btn btn-success"
+                                    onClick={handleBecomePorteur}
+                                    disabled={loadingProfileChange}
+                                >
+                                    {loadingProfileChange ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-2"></span>
+                                            Changement en cours...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="bi bi-check-lg me-2"></i>
+                                            Oui, devenir porteur
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

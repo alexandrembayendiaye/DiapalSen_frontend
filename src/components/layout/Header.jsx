@@ -132,6 +132,12 @@ const Header = () => {
                                             </Link>
                                         </li>
                                         <li>
+                                            <Link className="dropdown-item" to="/mes-favoris">
+                                                <i className="bi bi-heart me-2"></i>
+                                                Mes favoris
+                                            </Link>
+                                        </li>
+                                        <li>
                                             <Link className="dropdown-item" to="/notifications">
                                                 <i className="bi bi-bell me-2"></i>
                                                 Notifications

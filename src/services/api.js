@@ -4,6 +4,17 @@ import toastService from './toastService';
 
 // URL de base de l'API Django
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// URL de base pour les fichiers média (images, documents)
+export const MEDIA_BASE_URL = 'http://127.0.0.1:8000';
+
+// Fonction utilitaire pour construire l'URL complète d'un fichier média
+export const getMediaUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+    return `${MEDIA_BASE_URL}${path}`;
+};
 
 // Création de l'instance Axios
 const api = axios.create({

@@ -196,7 +196,7 @@ const AdminProjetDetail = () => {
             <nav aria-label="breadcrumb" className="mb-4">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                        <Link to="/admin/dashboard" className="text-decoration-none">
+                        <Link to="/dashboard" className="text-decoration-none">
                             <i className="bi bi-house me-1"></i>Admin
                         </Link>
                     </li>

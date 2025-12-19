@@ -1,15 +1,14 @@
 // src/pages/DashboardPage.jsx
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { logout as logoutAction } from '../store/authSlice'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import authService from '../services/authService'
-
-
-
+import { toast } from 'react-hot-toast'
 
 const DashboardPage = () => {
-    const { user, isPorteur, isContributeur, isAdmin, getFullName, getInitials, logout } = useAuth()
+    const { user, isPorteur, isContributeur, isAdmin, getFullName, getInitials, logout, getProfile } = useAuth()
+    const navigate = useNavigate()
     const [stats, setStats] = useState({
         projets_crees: 0,
         projets_finances: 0,
@@ -17,40 +16,58 @@ const DashboardPage = () => {
         contributions: 0,
         projets_soutenus: 0,
         montant_total_contribue: 0,
-        notifications_non_lues: 0
+        notifications_non_lues: 0,
+        // Stats admin
+        projets_en_attente: 0,
+        total_utilisateurs: 0,
+        projets_actifs: 0,
+        montant_total: 0
     })
     const [loadingStats, setLoadingStats] = useState(true)
+    const [showBecomePorteurModal, setShowBecomePorteurModal] = useState(false)
+    const [loadingProfileChange, setLoadingProfileChange] = useState(false)
+
+    // Fonction pour gérer le changement de profil (contributeur -> porteur)
+    const handleBecomePorteur = async () => {
+        try {
+            setLoadingProfileChange(true)
+            await authService.changeProfileType()
+            toast.success('Félicitations ! Vous êtes maintenant un porteur de projet 🎉')
+            setShowBecomePorteurModal(false)
+            await getProfile()
+            navigate('/projets/creer')
+        } catch (error) {
+            console.error('Erreur changement de profil:', error)
+            toast.error(error.error || 'Erreur lors du changement de profil')
+        } finally {
+            setLoadingProfileChange(false)
+        }
+    }
 
     const handleLogout = async () => {
         try {
             console.log('🔄 Début déconnexion complète...')
-
-            // 1. Appel API + nettoyage localStorage
             await logout()
-
-            // 2. Mise à jour état Redux
-            dispatch(logoutAction())
-
             console.log('✅ Déconnexion complète')
-            navigate('/', { replace: true })
+            window.location.href = '/'
         } catch (error) {
             console.warn('❌ Erreur API, mais on continue:', error)
-            // Forcer la déconnexion même en cas d'erreur
             localStorage.removeItem('access_token')
             localStorage.removeItem('refresh_token')
-            dispatch(logoutAction())
-            navigate('/', { replace: true })
+            window.location.href = '/'
         }
     }
+
     useEffect(() => {
         console.log('📊 DashboardPage: Utilisateur connecté:', user)
     }, [user])
+
     useEffect(() => {
         const loadStats = async () => {
             try {
                 setLoadingStats(true)
                 const data = await authService.getUserStats()
-                setStats(data)
+                setStats(prev => ({ ...prev, ...data }))
             } catch (error) {
                 console.error('❌ Erreur chargement stats:', error)
             } finally {
@@ -185,7 +202,7 @@ const DashboardPage = () => {
                             <div className="card-body">
 
                                 {/* Actions pour Porteur */}
-                                {isPorteur() && (
+                                {isPorteur() && !isAdmin() && (
                                     <div className="row g-3">
                                         <div className="col-md-6">
                                             <Link to="/projets/creer" className="btn btn-success w-100 p-3">
@@ -208,7 +225,8 @@ const DashboardPage = () => {
                                             </Link>
                                         </div>
                                         <div className="col-md-6">
-                                            <Link to="/mes-projets" className="btn btn-outline-info w-100 p-3">                                                <i className="bi bi-graph-up me-2"></i>
+                                            <Link to="/mes-projets" className="btn btn-outline-info w-100 p-3">
+                                                <i className="bi bi-graph-up me-2"></i>
                                                 <div>
                                                     <strong>Statistiques</strong>
                                                     <br />
@@ -230,8 +248,8 @@ const DashboardPage = () => {
                                 )}
 
                                 {/* Actions pour Contributeur */}
-                                {isContributeur() && (
-                                    <div className="row g-3 mb-4">
+                                {isContributeur() && !isAdmin() && (
+                                    <div className="row g-3">
                                         <div className="col-md-6">
                                             <Link to="/projets" className="btn btn-primary w-100 p-3">
                                                 <i className="bi bi-search me-2"></i>
@@ -262,6 +280,7 @@ const DashboardPage = () => {
                                                 </div>
                                             </Link>
                                         </div>
+
                                         <div className="col-md-6">
                                             <Link to="/notifications" className="btn btn-outline-info w-100 p-3">
                                                 <i className="bi bi-bell me-2"></i>
@@ -275,121 +294,170 @@ const DashboardPage = () => {
                                     </div>
                                 )}
 
-                                {/* Actions pour Admin */}
-                                {/* Actions pour Admin */}
+                                {/* Actions pour Admin avec Stats */}
                                 {isAdmin() && (
-                                    <div className="row g-3">
-                                        <div className="col-md-6">
-                                            <Link to="/admin/dashboard" className="btn btn-warning w-100 p-3">
-                                                <i className="bi bi-shield-check me-2"></i>
-                                                <div>
-                                                    <strong>Interface Admin</strong>
-                                                    <br />
-                                                    <small>Gestion de la plateforme</small>
+                                    <>
+                                        {/* Statistiques Admin en temps réel */}
+                                        <div className="row g-3 mb-4">
+                                            <div className="col-md-3 col-6">
+                                                <div className="card bg-warning bg-opacity-10 border-warning h-100">
+                                                    <div className="card-body text-center py-3">
+                                                        <i className="bi bi-clock-history text-warning fs-2"></i>
+                                                        <h3 className="mt-2 mb-0 text-warning">
+                                                            {loadingStats ? '...' : (stats.projets_en_attente || 0)}
+                                                        </h3>
+                                                        <small className="text-muted">En attente</small>
+                                                    </div>
                                                 </div>
-                                            </Link>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <Link to="/admin/projets/en-attente" className="btn btn-outline-danger w-100 p-3">
-                                                <i className="bi bi-clock me-2"></i>
-                                                <div>
-                                                    <strong>Validation projets</strong>
-                                                    <br />
-                                                    <small>Projets en attente</small>
+                                            </div>
+                                            <div className="col-md-3 col-6">
+                                                <div className="card bg-primary bg-opacity-10 border-primary h-100">
+                                                    <div className="card-body text-center py-3">
+                                                        <i className="bi bi-people text-primary fs-2"></i>
+                                                        <h3 className="mt-2 mb-0 text-primary">
+                                                            {loadingStats ? '...' : (stats.total_utilisateurs || 0)}
+                                                        </h3>
+                                                        <small className="text-muted">Utilisateurs</small>
+                                                    </div>
                                                 </div>
-                                            </Link>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <Link to="/admin/utilisateurs" className="btn btn-outline-primary w-100 p-3">
-                                                <i className="bi bi-people me-2"></i>
-                                                <div>
-                                                    <strong>Gestion utilisateurs</strong>
-                                                    <br />
-                                                    <small>Modération comptes</small>
+                                            </div>
+                                            <div className="col-md-3 col-6">
+                                                <div className="card bg-success bg-opacity-10 border-success h-100">
+                                                    <div className="card-body text-center py-3">
+                                                        <i className="bi bi-folder-check text-success fs-2"></i>
+                                                        <h3 className="mt-2 mb-0 text-success">
+                                                            {loadingStats ? '...' : (stats.projets_actifs || 0)}
+                                                        </h3>
+                                                        <small className="text-muted">Projets actifs</small>
+                                                    </div>
                                                 </div>
-                                            </Link>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <Link to="/admin/validations" className="btn btn-outline-info w-100 p-3">
-                                                <i className="bi bi-file-text me-2"></i>
-                                                <div>
-                                                    <strong>Historique</strong>
-                                                    <br />
-                                                    <small>Validations récentes</small>
+                                            </div>
+                                            <div className="col-md-3 col-6">
+                                                <div className="card bg-info bg-opacity-10 border-info h-100">
+                                                    <div className="card-body text-center py-3">
+                                                        <i className="bi bi-cash-stack text-info fs-2"></i>
+                                                        <h3 className="mt-2 mb-0 text-info">
+                                                            {loadingStats ? '...' : `${((stats.montant_total || 0) / 1000).toFixed(0)}K`}
+                                                        </h3>
+                                                        <small className="text-muted">FCFA collectés</small>
+                                                    </div>
                                                 </div>
-                                            </Link>
+                                            </div>
                                         </div>
-                                    </div>
+
+                                        {/* Actions rapides Admin */}
+                                        <div className="row g-3">
+                                            <div className="col-md-4">
+                                                <Link to="/admin/projets/en-attente" className="btn btn-outline-danger w-100 p-3">
+                                                    <i className="bi bi-clock me-2"></i>
+                                                    <div>
+                                                        <strong>Validation projets</strong>
+                                                        <br />
+                                                        <small>Projets en attente</small>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                            <div className="col-md-4">
+                                                <Link to="/admin/utilisateurs" className="btn btn-outline-primary w-100 p-3">
+                                                    <i className="bi bi-people me-2"></i>
+                                                    <div>
+                                                        <strong>Gestion utilisateurs</strong>
+                                                        <br />
+                                                        <small>Modération comptes</small>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                            <div className="col-md-4">
+                                                <Link to="/admin/validations" className="btn btn-outline-info w-100 p-3">
+                                                    <i className="bi bi-file-text me-2"></i>
+                                                    <div>
+                                                        <strong>Historique</strong>
+                                                        <br />
+                                                        <small>Validations récentes</small>
+                                                    </div>
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </div>
 
-                        {/* Statistiques de base */}
-                        <div className="card shadow-sm border-0">
-                            <div className="card-header bg-light">
-                                <h5 className="card-title mb-0">
-                                    <i className="bi bi-bar-chart me-2"></i>
-                                    Mon activité
-                                </h5>
+                        {/* Statistiques de base - cachées pour admin */}
+                        {!isAdmin() && (
+                            <div className="card shadow-sm border-0">
+                                <div className="card-header bg-light">
+                                    <h5 className="card-title mb-0">
+                                        <i className="bi bi-bar-chart me-2"></i>
+                                        Mon activité
+                                    </h5>
+                                </div>
+                                <div className="card-body">
+                                    <div className="row text-center">
+                                        <div className="col-md-3 col-6 mb-3">
+                                            <div className="p-3">
+                                                <h4 className="text-primary mb-1">
+                                                    {loadingStats ? '...' : (isPorteur() ? stats.projets_crees : stats.contributions)}
+                                                </h4>
+                                                <small className="text-muted">
+                                                    {isPorteur() ? 'Projets créés' : 'Contributions'}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-3">
+                                            <div className="p-3">
+                                                <h4 className="text-success mb-1">
+                                                    {loadingStats ? '...' : (isPorteur() ? stats.projets_finances : stats.projets_soutenus)}
+                                                </h4>
+                                                <small className="text-muted">
+                                                    {isPorteur() ? 'Projets financés' : 'Projets soutenus'}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-3">
+                                            <div className="p-3">
+                                                <h4 className="text-warning mb-1">
+                                                    {loadingStats ? '...' : stats.projets_en_cours}
+                                                </h4>
+                                                <small className="text-muted">En cours</small>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-3 col-6 mb-3">
+                                            <div className="p-3">
+                                                <h4 className="text-info mb-1">
+                                                    {loadingStats ? '...' : stats.notifications_non_lues}
+                                                </h4>
+                                                <small className="text-muted">Notifications</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="card-body">
-                                <div className="row text-center">
-                                    <div className="col-md-3 col-6 mb-3">
-                                        <div className="p-3">
-                                            <h4 className="text-primary mb-1">
-                                                {loadingStats ? '...' : (isPorteur() ? stats.projets_crees : stats.contributions)}
-                                            </h4>                                            <small className="text-muted">
-                                                {isPorteur() ? 'Projets créés' : 'Contributions'}
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3 col-6 mb-3">
-                                        <div className="p-3">
-                                            <h4 className="text-success mb-1">
-                                                {loadingStats ? '...' : (isPorteur() ? stats.projets_finances : stats.projets_soutenus)}
-                                            </h4>                                            <small className="text-muted">
-                                                {isPorteur() ? 'Projets financés' : 'Projets soutenus'}
-                                            </small>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3 col-6 mb-3">
-                                        <div className="p-3">
-                                            <h4 className="text-warning mb-1">
-                                                {loadingStats ? '...' : stats.projets_en_cours}
-                                            </h4>                                            <small className="text-muted">En cours</small>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-3 col-6 mb-3">
-                                        <div className="p-3">
-                                            <h4 className="text-info mb-1">
-                                                {loadingStats ? '...' : stats.notifications_non_lues}
-                                            </h4>                                            <small className="text-muted">Notifications</small>
-                                        </div>
-                                    </div>
-                                </div>
+                        )}
 
-                                <div className="text-center mt-3">
-                                    <p className="text-muted mb-3">
-                                        {isPorteur() && 'Votre aventure entrepreneuriale commence ici ! Créez votre premier projet pour commencer.'}
-                                        {isContributeur() && 'Découvrez des projets inspirants à soutenir et participez à l\'innovation sénégalaise.'}
-                                        {isAdmin() && 'Gérez la plateforme et aidez les entrepreneurs à réussir leurs projets.'}
-                                    </p>
-
-                                    {/* Bouton de déconnexion */}
-                                    <button
-                                        onClick={handleLogout}
-                                        className="btn btn-outline-secondary"
-                                        type="button"
-                                    >
-                                        <i className="bi bi-box-arrow-right me-2"></i>
-                                        Se déconnecter
-                                    </button>
-                                </div>
+                        {/* Message et déconnexion */}
+                        <div className="card shadow-sm border-0 mt-4">
+                            <div className="card-body text-center py-4">
+                                <p className="text-muted mb-3">
+                                    {isPorteur() && 'Votre aventure entrepreneuriale commence ici !'}
+                                    {isContributeur() && 'Découvrez des projets inspirants à soutenir.'}
+                                    {isAdmin() && 'Gérez la plateforme et aidez les entrepreneurs.'}
+                                </p>
+                                <button
+                                    onClick={handleLogout}
+                                    className="btn btn-outline-secondary"
+                                    type="button"
+                                >
+                                    <i className="bi bi-box-arrow-right me-2"></i>
+                                    Se déconnecter
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {/* Modal de confirmation pour devenir porteur */}
+
         </div>
     )
 }

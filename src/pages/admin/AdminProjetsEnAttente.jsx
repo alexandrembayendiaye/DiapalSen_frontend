@@ -180,7 +180,7 @@ const AdminProjetsEnAttente = () => {
                         </Link>
                     </li>
                     <li className="breadcrumb-item">
-                        <Link to="/admin/dashboard" className="text-decoration-none">
+                        <Link to="/dashboard" className="text-decoration-none">
                             Interface Admin
                         </Link>
                     </li>
@@ -211,7 +211,7 @@ const AdminProjetsEnAttente = () => {
                     </div>
                 </div>
                 <div className="col-md-4 text-md-end">
-                    <Link to="/admin/dashboard" className="btn btn-outline-primary">
+                    <Link to="/dashboard" className="btn btn-outline-primary">
                         <i className="bi bi-arrow-left me-2"></i>
                         Retour dashboard admin
                     </Link>
@@ -230,7 +230,7 @@ const AdminProjetsEnAttente = () => {
                         <p className="text-muted mb-4">
                             Tous les projets soumis ont été traités avec succès.
                         </p>
-                        <Link to="/admin/dashboard" className="btn btn-primary">
+                        <Link to="/dashboard" className="btn btn-primary">
                             <i className="bi bi-speedometer2 me-2"></i>
                             Retour dashboard
                         </Link>

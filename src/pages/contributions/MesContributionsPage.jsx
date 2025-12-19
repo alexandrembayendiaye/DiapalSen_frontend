@@ -11,6 +11,16 @@ const MesContributionsPage = () => {
     const [loading, setLoading] = useState(true)
     const [statsLoading, setStatsLoading] = useState(true)
 
+    // État pour le modal de détail
+    const [showDetailModal, setShowDetailModal] = useState(false)
+    const [selectedContribution, setSelectedContribution] = useState(null)
+
+    // Fonction pour ouvrir le modal de détail
+    const ouvrirDetailModal = (contribution) => {
+        setSelectedContribution(contribution)
+        setShowDetailModal(true)
+    }
+
     // États pour les filtres
     const [filtres, setFiltres] = useState({
         statut: 'tous',
@@ -544,10 +554,7 @@ const MesContributionsPage = () => {
                                                                     <button
                                                                         className="btn btn-outline-primary btn-sm"
                                                                         title="Voir le détail"
-                                                                        onClick={() => {
-                                                                            console.log('Voir détail contribution:', contribution.id)
-                                                                            // TODO: Implémenter modal ou page détail
-                                                                        }}
+                                                                        onClick={() => ouvrirDetailModal(contribution)}
                                                                     >
                                                                         <i className="bi bi-eye"></i>
                                                                     </button>
@@ -620,6 +627,131 @@ const MesContributionsPage = () => {
                 )}
 
             </div>
+            {/* Modal de détail de contribution */}
+            {showDetailModal && selectedContribution && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog modal-dialog-centered modal-lg">
+                        <div className="modal-content">
+                            <div className="modal-header bg-success text-white">
+                                <h5 className="modal-title">
+                                    <i className="bi bi-receipt me-2"></i>
+                                    Détail de la contribution
+                                </h5>
+                                <button
+                                    className="btn-close btn-close-white"
+                                    onClick={() => setShowDetailModal(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                {/* En-tête avec montant */}
+                                <div className="text-center mb-4 pb-4 border-bottom">
+                                    <div className="bg-success bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                        style={{ width: '80px', height: '80px' }}>
+                                        <i className="bi bi-wallet2 text-success fs-1"></i>
+                                    </div>
+                                    <h2 className="text-success mb-1">
+                                        {formatMontant(selectedContribution.montant)} FCFA
+                                    </h2>
+                                    <p className="text-muted mb-0">Montant contribué</p>
+                                </div>
+
+                                <div className="row g-4">
+                                    {/* Colonne gauche - Informations projet */}
+                                    <div className="col-md-6">
+                                        <h6 className="text-muted mb-3">
+                                            <i className="bi bi-folder me-2"></i>
+                                            Projet soutenu
+                                        </h6>
+                                        <div className="bg-light rounded p-3">
+                                            <h5 className="mb-2">{selectedContribution.projet.titre}</h5>
+                                            <div className="d-flex flex-wrap gap-2 mb-2">
+                                                <span className="badge bg-primary">
+                                                    {selectedContribution.projet.statut}
+                                                </span>
+                                                <span className="badge bg-info">
+                                                    {selectedContribution.projet.pourcentage_atteint}% financé
+                                                </span>
+                                            </div>
+                                            <a
+                                                href={`/projets/${selectedContribution.projet.id}`}
+                                                className="btn btn-outline-primary btn-sm"
+                                            >
+                                                <i className="bi bi-eye me-1"></i>
+                                                Voir le projet
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    {/* Colonne droite - Détails paiement */}
+                                    <div className="col-md-6">
+                                        <h6 className="text-muted mb-3">
+                                            <i className="bi bi-credit-card me-2"></i>
+                                            Détails du paiement
+                                        </h6>
+                                        <ul className="list-group list-group-flush">
+                                            <li className="list-group-item d-flex justify-content-between">
+                                                <span className="text-muted">Référence</span>
+                                                <span className="fw-bold font-monospace">
+                                                    {selectedContribution.reference_paiement}
+                                                </span>
+                                            </li>
+                                            <li className="list-group-item d-flex justify-content-between">
+                                                <span className="text-muted">Date</span>
+                                                <span>{formatDate(selectedContribution.date_contribution)}</span>
+                                            </li>
+                                            <li className="list-group-item d-flex justify-content-between align-items-center">
+                                                <span className="text-muted">Statut</span>
+                                                {selectedContribution.statut_paiement_display === 'Validé' && (
+                                                    <span className="badge bg-success">
+                                                        <i className="bi bi-check-circle me-1"></i>Validé
+                                                    </span>
+                                                )}
+                                                {selectedContribution.statut_paiement_display === 'Échec' && (
+                                                    <span className="badge bg-danger">
+                                                        <i className="bi bi-x-circle me-1"></i>Échec
+                                                    </span>
+                                                )}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Message de soutien */}
+                                {selectedContribution.message_soutien && (
+                                    <div className="mt-4">
+                                        <h6 className="text-muted mb-2">
+                                            <i className="bi bi-chat-quote me-2"></i>
+                                            Votre message de soutien
+                                        </h6>
+                                        <div className="bg-light rounded p-3 fst-italic">
+                                            "{selectedContribution.message_soutien}"
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                {selectedContribution.recu_pdf && (
+                                    <a
+                                        href={selectedContribution.recu_pdf}
+                                        className="btn btn-success"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <i className="bi bi-download me-2"></i>
+                                        Télécharger le reçu PDF
+                                    </a>
+                                )}
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowDetailModal(false)}
+                                >
+                                    Fermer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

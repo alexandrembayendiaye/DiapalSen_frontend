@@ -10,6 +10,7 @@ import { formatMontant } from '../../utils/formatUtils'
 import CommentairesSection from '../../components/interactions/CommentairesSection'
 import interactionsService from '../../services/interactionsService'
 import PartageButtons from '../../components/interactions/PartageButtons'
+import { getMediaUrl } from '../../services/api'
 
 
 
@@ -43,16 +44,20 @@ const ProjectDetailPage = () => {
             const data = await projectsService.getProject(id)
 
             // Adapter les données Django pour l'interface
+            const porteurData = data.porteur || {}
+            const porteurNom = porteurData.nom_complet || data.porteur_nom || 'Utilisateur'
+            const defaultPhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(porteurNom)}&background=0066cc&color=fff&size=100`
+
             const adaptedProject = {
                 ...data,
                 porteur: {
-                    nom: data.porteur_nom,
-                    prenom: data.porteur_nom?.split(' ')[0] || '',
-                    email: data.porteur_email || '',
-                    photo: "https://via.placeholder.com/100x100/0066cc/ffffff?text=" + (data.porteur_nom?.charAt(0) || 'U')
+                    nom: porteurNom,
+                    prenom: porteurNom?.split(' ')[0] || '',
+                    email: porteurData.email || data.porteur_email || '',
+                    photo: getMediaUrl(porteurData.photo_profil) || defaultPhoto
                 },
                 images: getProjectImages(data),
-                contributeurs_recents: [] // Sera rempli plus tard avec l'API contributions
+                contributeurs_recents: []
             }
 
             setProject(adaptedProject)

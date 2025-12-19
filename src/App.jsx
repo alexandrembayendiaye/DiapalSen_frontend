@@ -19,6 +19,7 @@ import CreerProjetPage from './pages/projects/CreerProjetPage'
 import ModifierProjetPage from './pages/projects/ModifierProjetPage'
 import ProjetCommentaireAdminPage from './pages/projects/ProjetCommentaireAdminPage'
 import MesContributionsPage from './pages/contributions/MesContributionsPage'
+import MesFavorisPage from './pages/favoris/MesFavorisPage'
 import DashboardPorteurStats from './pages/porteur/DashboardPorteurStats'
 import GestionContributeurs from './pages/porteur/GestionContributeurs'
 import MesContributeursPage from './pages/porteur/MesContributeursPage'
@@ -26,6 +27,8 @@ import ProfilPage from './pages/user/ProfilPage'
 import NotificationsPage from './pages/notifications/NotificationsPage'
 import AdminProjetsEnAttente from './pages/admin/AdminProjetsEnAttente';
 import AdminProjetDetail from './pages/admin/AdminProjetDetail';
+import AdminUtilisateursPage from './pages/admin/AdminUtilisateursPage';
+import AdminHistoriquePage from './pages/admin/AdminHistoriquePage';
 import { Error404, Error500, Error403 } from './pages/ErrorPage';
 
 
@@ -73,86 +76,6 @@ const AdminProtectedRoute = ({ children }) => {
 
   // Si admin authentifié → accès autorisé
   return children;
-};
-// ✅ REMPLACEZ le composant AdminDashboard temporaire par :
-const AdminDashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simuler des stats pour le moment
-    setTimeout(() => {
-      setStats({
-        projets: { total: 12, en_attente: 3, actifs: 8, finances: 1 },
-        utilisateurs: { total: 45, contributeurs: 30, porteurs: 12, nouveaux_30j: 8 },
-        contributions: { montant_total: 2500000, total_contributions: 67 }
-      });
-      setLoading(false);
-    }, 1000);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="container py-5">
-        <div className="text-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Chargement...</span>
-          </div>
-          <p className="mt-3 text-muted">Chargement des statistiques...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container py-4">
-      <h1 className="mb-4">📊 Dashboard Administrateur</h1>
-
-      <div className="row mb-4">
-        <div className="col-md-3">
-          <div className="card text-center">
-            <div className="card-body">
-              <h3 className="text-primary">{stats.projets.total}</h3>
-              <p className="text-muted">Projets total</p>
-              <span className="badge bg-warning">{stats.projets.en_attente} en attente</span>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card text-center">
-            <div className="card-body">
-              <h3 className="text-success">{stats.utilisateurs.total}</h3>
-              <p className="text-muted">Utilisateurs</p>
-              <span className="badge bg-info">{stats.utilisateurs.nouveaux_30j} nouveaux (30j)</span>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card text-center">
-            <div className="card-body">
-              <h3 className="text-info">{stats.contributions.montant_total.toLocaleString()} FCFA</h3>
-              <p className="text-muted">Montant collecté</p>
-              <span className="badge bg-success">{stats.contributions.total_contributions} contributions</span>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-3">
-          <div className="card text-center">
-            <div className="card-body">
-              <h3 className="text-warning">{stats.projets.en_attente}</h3>
-              <p className="text-muted">À valider</p>
-              <a href="/admin/projets/en-attente" className="btn btn-sm btn-warning">Traiter</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="alert alert-info">
-        <strong>🚧 Interface admin en développement</strong>
-        <br />Prochaines étapes : Validation des projets, gestion utilisateurs, historique.
-      </div>
-    </div>
-  );
 };
 
 function App() {
@@ -204,6 +127,9 @@ function App() {
           {/* Contributions */}
           <Route path="/mes-contributions" element={<MesContributionsPage />} />
 
+          {/* Favoris */}
+          <Route path="/mes-favoris" element={<MesFavorisPage />} />
+
           {/* Profil utilisateur */}
           <Route path="/profil" element={<ProfilPage />} />
 
@@ -215,14 +141,12 @@ function App() {
           <Route path="/mes-projets/:projectId/contributeurs" element={<GestionContributeurs />} />
           <Route path="/contributeurs" element={<MesContributeursPage />} />
 
-          {/* ✅ ROUTES ADMIN SIMPLIFIÉES TEMPORAIRES */}
-          {/* Routes admin PROTÉGÉES */}
+          {/* ✅ ROUTES ADMIN */}
           <Route path="/admin/projets/en-attente" element={<AdminProjetsEnAttente />} />
           <Route path="/admin/projets/:projectId/detail" element={<AdminProjetDetail />} />
           <Route path="/admin/projets/:projectId/valider" element={<AdminProjetDetail />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          {/* <Route path="/admin/utilisateurs" element={<AdminUtilisateurs />} />
-          <Route path="/admin/validations" element={<AdminHistorique />} /> */}
+          <Route path="/admin/utilisateurs" element={<AdminUtilisateursPage />} />
+          <Route path="/admin/validations" element={<AdminHistoriquePage />} />
 
           {/* Route 404 - Doit être en dernier */}
           <Route path="*" element={<Error404 />} />

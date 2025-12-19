@@ -30,7 +30,7 @@ const AdminLayout = () => {
     // Menu sidebar admin
     const menuItems = [
         {
-            path: '/admin/dashboard',
+            path: '/dashboard',
             name: 'Dashboard',
             icon: '📊',
             description: 'Vue d\'ensemble'
@@ -105,8 +105,8 @@ const AdminLayout = () => {
                                     <Link
                                         to={item.path}
                                         className={`nav-link d-flex align-items-center px-3 py-2 rounded ${location.pathname === item.path
-                                                ? 'bg-primary text-white'
-                                                : 'text-dark hover-bg-light'
+                                            ? 'bg-primary text-white'
+                                            : 'text-dark hover-bg-light'
                                             }`}
                                     >
                                         <span className="me-2 fs-5">{item.icon}</span>

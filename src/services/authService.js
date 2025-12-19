@@ -96,6 +96,7 @@ const authService = {
             throw error.response?.data || error;
         }
     },
+
     async getUserStats() {
         try {
             console.log('🔄 Récupération des stats utilisateur...');
@@ -133,6 +134,7 @@ const authService = {
             console.log('🧹 localStorage nettoyé');
         }
     },
+
     // 🔄 REFRESH TOKEN
     async refreshToken() {
         try {
@@ -162,6 +164,19 @@ const authService = {
     // 📱 RÉCUPÉRER TOKEN
     getToken() {
         return localStorage.getItem('access_token');
+    },
+
+    // 🔄 CHANGER TYPE DE PROFIL (contributeur → porteur)
+    async changeProfileType() {
+        try {
+            console.log('🔄 Changement de profil en porteur...');
+            const response = await api.post('/users/change-profile-type/');
+            console.log('✅ Profil changé:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('❌ Erreur changement de profil:', error.response?.data);
+            throw error.response?.data || error;
+        }
     }
 };
 
