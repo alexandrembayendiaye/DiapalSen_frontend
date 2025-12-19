@@ -1,7 +1,9 @@
 // src/components/layout/Footer.jsx
 import { Link } from 'react-router-dom'
-
+import { useAuth } from '../../contexts/AuthContext.jsx'
 const Footer = () => {
+    const { isAuthenticated } = useAuth()
+
     return (
         <footer className="bg-dark text-light mt-5">
             <div className="container py-5">
@@ -36,11 +38,11 @@ const Footer = () => {
                                     <i className="bi bi-folder me-2"></i>Projets
                                 </Link>
                             </li>
-                            <li className="mb-2">
+                            {/* <li className="mb-2">
                                 <Link to="/categories" className="text-light-emphasis text-decoration-none">
                                     <i className="bi bi-grid me-2"></i>Catégories
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="mb-2">
                                 <Link to="/aide" className="text-light-emphasis text-decoration-none">
                                     <i className="bi bi-question-circle me-2"></i>Centre d'aide
@@ -54,7 +56,10 @@ const Footer = () => {
                         <h6 className="text-warning mb-3">Services</h6>
                         <ul className="list-unstyled">
                             <li className="mb-2">
-                                <Link to="/creer-projet" className="text-light-emphasis text-decoration-none">
+                                <Link
+                                    to={isAuthenticated ? "/projets/creer" : "/register"}
+                                    className="text-light-emphasis text-decoration-none"
+                                >
                                     <i className="bi bi-plus-circle me-2"></i>Créer un projet
                                 </Link>
                             </li>
@@ -63,11 +68,11 @@ const Footer = () => {
                                     <i className="bi bi-info-circle me-2"></i>Comment ça marche
                                 </Link>
                             </li>
-                            <li className="mb-2">
+                            {/* <li className="mb-2">
                                 <Link to="/succes" className="text-light-emphasis text-decoration-none">
                                     <i className="bi bi-star me-2"></i>Histoires de succès
                                 </Link>
-                            </li>
+                            </li> */}
                             <li className="mb-2">
                                 <Link to="/contact" className="text-light-emphasis text-decoration-none">
                                     <i className="bi bi-envelope me-2"></i>Contact

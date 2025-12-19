@@ -155,21 +155,24 @@ const ProjectDetailPage = () => {
     return (
         <div className="project-detail-page">
 
-            {/* Breadcrumb */}
-            <div className="bg-light py-2">
-                <div className="container">
-                    <nav>
-                        <ol className="breadcrumb mb-0">
-                            <li className="breadcrumb-item">
-                                <Link to="/">Accueil</Link>
-                            </li>
-                            <li className="breadcrumb-item">
-                                <Link to="/projets">Projets</Link>
-                            </li>
-                            <li className="breadcrumb-item active">{project.titre}</li>
-                        </ol>
-                    </nav>
-                </div>
+            {/* Breadcrumb - avec padding pour la navbar fixe */}
+            <div className="bg-light py-2 border-bottom" style={{ paddingTop: '10px' }}>                <div className="container">
+                <nav aria-label="breadcrumb">
+                    <ol className="breadcrumb mb-0 small">
+                        <li className="breadcrumb-item">
+                            <Link to="/" className="text-decoration-none">
+                                <i className="bi bi-house me-1"></i>Accueil
+                            </Link>
+                        </li>
+                        <li className="breadcrumb-item">
+                            <Link to="/projets" className="text-decoration-none">Projets</Link>
+                        </li>
+                        <li className="breadcrumb-item active text-truncate" style={{ maxWidth: '200px' }}>
+                            {project.titre}
+                        </li>
+                    </ol>
+                </nav>
+            </div>
             </div>
 
             <div className="container py-4">
@@ -211,8 +214,7 @@ const ProjectDetailPage = () => {
                                     alt={project.porteur.nom}
                                 />
                                 <div>
-                                    <strong>Par {project.porteur.prenom} {project.porteur.nom}</strong>
-                                    <br />
+                                    <strong>Par {project.porteur.nom}</strong>                                    <br />
                                     <small>
                                         <i className="bi bi-geo-alt me-1"></i>
                                         {project.ville}, {project.region}
@@ -250,14 +252,14 @@ const ProjectDetailPage = () => {
                                         Commentaires <span className="badge bg-secondary ms-1">{commentairesCount}</span>
                                     </button>
                                 </li>
-                                <li className="nav-item">
+                                {/* <li className="nav-item">
                                     <button
                                         className={`nav-link ${activeTab === 'updates' ? 'active' : ''}`}
                                         onClick={() => setActiveTab('updates')}
                                     >
                                         Actualités <span className="badge bg-secondary ms-1">2</span>
                                     </button>
-                                </li>
+                                </li> */}
                             </ul>
 
                             <div className="tab-content mt-3">
@@ -269,11 +271,11 @@ const ProjectDetailPage = () => {
                                     </div>
                                 )}
 
-                                {activeTab === 'updates' && (
+                                {/* {activeTab === 'updates' && (
                                     <div className="tab-pane fade show active">
                                         <p className="text-muted">Les actualités du projet apparaîtront ici.</p>
                                     </div>
-                                )}
+                                )} */}
 
                                 {activeTab === 'comments' && (
                                     <div className="tab-pane fade show active">
@@ -322,7 +324,20 @@ const ProjectDetailPage = () => {
                                     </div>
 
                                     {/* Bouton contribution */}
-                                    {isAuthenticated ? (
+                                    {project.jours_restants <= 0 ? (
+                                        <div className="d-grid">
+                                            <button className="btn btn-secondary btn-lg mb-3" disabled>
+                                                <i className="bi bi-clock-fill me-2"></i>
+                                                Campagne terminée
+                                            </button>
+                                            <div className="alert alert-warning py-2 mb-0 text-center">
+                                                <small>
+                                                    <i className="bi bi-info-circle me-1"></i>
+                                                    Cette campagne est terminée. Les contributions ne sont plus acceptées.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    ) : isAuthenticated ? (
                                         <div className="d-grid">
                                             <button
                                                 className="btn btn-success btn-lg mb-3"

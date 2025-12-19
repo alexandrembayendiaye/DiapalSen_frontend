@@ -9,29 +9,29 @@ const RegisterPage = () => {
   const navigate = useNavigate()
   const { register: registerUser, loading, error, isAuthenticated, clearError } = useAuth()
 
-  // Gestion du formulaire
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors }
   } = useForm()
 
   // Surveiller le mot de passe pour la confirmation
   const password = watch('password')
 
-  // Redirection si déjà connecté
+  // Redirection si déjà connecté (sans toast pour éviter les doublons)
   useEffect(() => {
     if (isAuthenticated) {
-      toast.success('Vous êtes déjà connecté !')
       navigate('/dashboard')
     }
   }, [isAuthenticated, navigate])
 
-  // Effacer les erreurs
+  // Effacer les erreurs au montage initial seulement
   useEffect(() => {
     clearError()
-  }, [clearError])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Options pour les select
   const regionsOptions = [
@@ -85,8 +85,10 @@ const RegisterPage = () => {
       // Gestion des erreurs spécifiques
       if (error?.email) {
         toast.error('Cet email est déjà utilisé')
+        setValue('email', '')  // Vider seulement le champ email
       } else if (error?.username) {
         toast.error('Ce nom d\'utilisateur est déjà pris')
+        setValue('username', '')  // Vider seulement le champ username
       } else {
         toast.error(error?.message || 'Erreur lors de l\'inscription')
       }

@@ -16,10 +16,9 @@ const LoginPage = () => {
         formState: { errors }
     } = useForm()
 
-    // Redirection si déjà connecté
+    // Redirection si déjà connecté (sans toast pour éviter les doublons)
     useEffect(() => {
         if (isAuthenticated) {
-            toast.success('Vous êtes déjà connecté !')
             navigate('/dashboard')
         }
     }, [isAuthenticated, navigate])

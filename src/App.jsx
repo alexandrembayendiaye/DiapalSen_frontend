@@ -30,6 +30,14 @@ import AdminProjetDetail from './pages/admin/AdminProjetDetail';
 import AdminUtilisateursPage from './pages/admin/AdminUtilisateursPage';
 import AdminHistoriquePage from './pages/admin/AdminHistoriquePage';
 import { Error404, Error500, Error403 } from './pages/ErrorPage';
+// Pages statiques
+import AidePage from './pages/static/AidePage'
+import ContactPage from './pages/static/ContactPage'
+import AProposPage from './pages/static/AProposPage'
+import ConditionsPage from './pages/static/ConditionsPage'
+import ConfidentialitePage from './pages/static/ConfidentialitePage'
+import MentionsLegalesPage from './pages/static/MentionsLegalesPage'
+import CommentCaMarchePage from './pages/static/CommentCaMarchePage'
 
 
 // Import Bootstrap CSS
@@ -147,6 +155,14 @@ function App() {
           <Route path="/admin/projets/:projectId/valider" element={<AdminProjetDetail />} />
           <Route path="/admin/utilisateurs" element={<AdminUtilisateursPage />} />
           <Route path="/admin/validations" element={<AdminHistoriquePage />} />
+          {/* Pages statiques */}
+          <Route path="/aide" element={<AidePage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/a-propos" element={<AProposPage />} />
+          <Route path="/conditions" element={<ConditionsPage />} />
+          <Route path="/confidentialite" element={<ConfidentialitePage />} />
+          <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+          <Route path="/comment-ca-marche" element={<CommentCaMarchePage />} />
 
           {/* Route 404 - Doit être en dernier */}
           <Route path="*" element={<Error404 />} />

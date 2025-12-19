@@ -231,13 +231,13 @@ const MesProjetsPage = () => {
                         >
                             <i className="bi bi-pencil"></i>
                         </Link>
-                        <Link
+                        {/* <Link
                             to={`/mes-projets/${projet.id}/actualites`}
                             className="btn btn-sm btn-outline-success"
                             title="Gérer les actualités"
                         >
                             <i className="bi bi-megaphone"></i>
-                        </Link>
+                        </Link> */}
                         <Link
                             to={`/mes-projets/${projet.id}/stats`}
                             className={`${baseButtonClass} btn-info`}

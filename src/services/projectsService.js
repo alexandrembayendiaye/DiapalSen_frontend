@@ -5,6 +5,7 @@ import api from './api'
 const projectsService = {
 
     // 📋 RÉCUPÉRER LISTE DES PROJETS
+    // 📋 RÉCUPÉRER LISTE DES PROJETS
     async getProjects(filters = {}) {
         try {
             console.log('🔄 Récupération des projets...', filters)
@@ -24,6 +25,31 @@ const projectsService = {
         } catch (error) {
             console.error('❌ Erreur récupération projets:', error.response?.data)
             throw error.response?.data || error
+        }
+    },
+
+    // 📊 STATISTIQUES GLOBALES POUR LA PAGE D'ACCUEIL
+    async getStatsGlobales() {
+        try {
+            console.log('🔄 Récupération des statistiques globales...')
+            const response = await api.get('/projects/')
+            const projets = response.data.results || []
+
+            const projetsActifs = projets.filter(p => p.statut === 'valide' || p.statut === 'actif')
+            const totalCollecte = projets.reduce((sum, p) => sum + (parseFloat(p.montant_collecte) || 0), 0)
+            const totalContributeurs = projets.reduce((sum, p) => sum + (p.nombre_contributeurs || 0), 0)
+            const projetsReussis = projets.filter(p => parseFloat(p.montant_collecte) >= parseFloat(p.montant_objectif))
+            const tauxReussite = projets.length > 0 ? Math.round((projetsReussis.length / projets.length) * 100) : 0
+
+            return {
+                projets_finances: projetsActifs.length,
+                total_contributeurs: totalContributeurs,
+                montant_total_collecte: totalCollecte,
+                taux_reussite: tauxReussite
+            }
+        } catch (error) {
+            console.error('❌ Erreur stats globales:', error)
+            return { projets_finances: 0, total_contributeurs: 0, montant_total_collecte: 0, taux_reussite: 0 }
         }
     },
 

@@ -127,13 +127,35 @@ const ProjectsListPage = () => {
         }
     }
 
-    const filteredProjects = projects.filter(project => {
+    // Filtrer les projets
+    let filteredProjects = projects.filter(project => {
         return (
             project.titre.toLowerCase().includes(filters.search.toLowerCase()) &&
             (filters.category === '' || project.categorie_nom === filters.category) &&
             (filters.region === '' || project.region === filters.region)
         )
     })
+
+    // Appliquer le tri
+    // Appliquer le tri
+    switch (filters.sort) {
+        case 'popular':
+            filteredProjects = [...filteredProjects].sort((a, b) => b.nombre_contributeurs - a.nombre_contributeurs)
+            break
+        case 'ending':
+            // Exclure les campagnes terminées et trier par fin proche
+            filteredProjects = [...filteredProjects]
+                .filter(p => p.jours_restants > 0)
+                .sort((a, b) => a.jours_restants - b.jours_restants)
+            break
+        case 'funded':
+            filteredProjects = [...filteredProjects].sort((a, b) => b.pourcentage_atteint - a.pourcentage_atteint)
+            break
+        case 'recent':
+        default:
+            // Déjà trié par défaut (plus récents)
+            break
+    }
 
     if (loading) {
         return (
@@ -309,12 +331,17 @@ const ProjectsListPage = () => {
                                                 alt={project.titre}
                                                 style={{ height: '200px', objectFit: 'cover' }}
                                             />
-                                            <span className="position-absolute top-0 start-0 m-2 badge bg-primary">
-                                                {project.categorie_nom}
-                                            </span>
-                                            <span className="position-absolute top-0 end-0 m-2 badge bg-success">
-                                                {project.pourcentage_atteint}%
-                                            </span>
+                                            {/* Badge campagne terminée OU pourcentage */}
+                                            {project.jours_restants <= 0 ? (
+                                                <span className="badge bg-danger position-absolute top-0 end-0 m-2">
+                                                    <i className="bi bi-clock-fill me-1"></i>
+                                                    Terminée
+                                                </span>
+                                            ) : (
+                                                <span className="position-absolute top-0 end-0 m-2 badge bg-success">
+                                                    {project.pourcentage_atteint}%
+                                                </span>
+                                            )}
                                         </div>
 
                                         <div className="card-body d-flex flex-column">

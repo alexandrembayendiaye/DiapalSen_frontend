@@ -5,6 +5,16 @@ import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import interactionsService from '../../services/interactionsService'
 
+// URL de base de l'API pour les images
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+
+// Fonction pour construire l'URL complète de l'image
+const getImageUrl = (imagePath) => {
+    if (!imagePath) return null
+    if (imagePath.startsWith('http')) return imagePath
+    return `${API_URL}${imagePath}`
+}
+
 const CommentairesSection = ({ projet }) => {
     const { user, isAuthenticated } = useAuth()
     const [commentaires, setCommentaires] = useState([])
@@ -240,7 +250,7 @@ const CommentairesSection = ({ projet }) => {
                                         <div className="me-3">
                                             {commentaire.auteur_photo ? (
                                                 <img
-                                                    src={commentaire.auteur_photo}
+                                                    src={getImageUrl(commentaire.auteur_photo)}
                                                     alt={commentaire.auteur_nom}
                                                     className="rounded-circle"
                                                     width="40"
@@ -304,7 +314,7 @@ const CommentairesSection = ({ projet }) => {
                                                             <div className="me-2">
                                                                 {reponse.auteur_photo ? (
                                                                     <img
-                                                                        src={reponse.auteur_photo}
+                                                                        src={getImageUrl(reponse.auteur_photo)}
                                                                         alt={reponse.auteur_nom}
                                                                         className="rounded-circle"
                                                                         width="32"

@@ -140,8 +140,7 @@ const ContributionModal = ({ show, onHide, project, onSuccess }) => {
                     <div className="row text-center">
                         <div className="col-4">
                             <div className="text-success fw-bold">
-                                {(project.montant_collecte / 1000000).toFixed(1)}M
-                            </div>
+                                {parseInt(project.montant_collecte).toLocaleString()} FCFA                            </div>
                             <small className="text-muted">collectés</small>
                         </div>
                         <div className="col-4">
