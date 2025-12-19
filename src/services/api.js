@@ -2,10 +2,10 @@
 import axios from 'axios';
 import toastService from './toastService';
 
-// URL de base de l'API Django
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// URL de base de l'API Django (via variable d'environnement ou fallback local)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
 // URL de base pour les fichiers média (images, documents)
-export const MEDIA_BASE_URL = 'http://127.0.0.1:8000';
+export const MEDIA_BASE_URL = import.meta.env.VITE_MEDIA_BASE_URL || 'http://127.0.0.1:8000';
 
 // Fonction utilitaire pour construire l'URL complète d'un fichier média
 export const getMediaUrl = (path) => {

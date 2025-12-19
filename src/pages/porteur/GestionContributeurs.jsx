@@ -478,16 +478,6 @@ const GestionContributeurs = () => {
                                 <i className="bi bi-people me-2"></i>
                                 Mes contributeurs ({contributeursFiltres.length})
                             </h5>
-                            <div>
-                                <button className="btn btn-success btn-sm me-2">
-                                    <i className="bi bi-download me-1"></i>
-                                    Exporter
-                                </button>
-                                <button className="btn btn-primary btn-sm">
-                                    <i className="bi bi-envelope me-1"></i>
-                                    Message groupé
-                                </button>
-                            </div>
                         </div>
                     </div>
                     <div className="card-body p-0">
@@ -501,7 +491,6 @@ const GestionContributeurs = () => {
                                             <th>Contributions</th>
                                             <th>Première contribution</th>
                                             <th>Dernière contribution</th>
-                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -556,23 +545,6 @@ const GestionContributeurs = () => {
                                                     <small className="text-muted">
                                                         {new Date(contributeur.derniere_contribution).toLocaleDateString('fr-FR')}
                                                     </small>
-                                                </td>
-                                                <td>
-                                                    <div className="d-flex gap-1">
-                                                        <button
-                                                            className="btn btn-sm btn-outline-success"
-                                                            onClick={() => ouvrirModalMessage(contributeur)}
-                                                            title="Envoyer un message"
-                                                        >
-                                                            <i className="bi bi-envelope"></i>
-                                                        </button>
-                                                        <button
-                                                            className="btn btn-sm btn-outline-info"
-                                                            title="Voir le profil"
-                                                        >
-                                                            <i className="bi bi-person"></i>
-                                                        </button>
-                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

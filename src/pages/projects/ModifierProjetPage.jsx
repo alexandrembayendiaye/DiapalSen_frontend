@@ -326,12 +326,15 @@ const ModifierProjetPage = () => {
     const isFieldDisabled = (fieldName) => {
         if (!projet) return false
 
+        // Projet actif : seulement description_complete et video_url modifiables
+        // Les médias (image, documents) sont bloqués
         if (projet.statut === 'actif') {
-            return !['description_complete', 'video_url', 'image_principale', 'document_budget', 'document_business_plan'].includes(fieldName)
+            return !['description_complete', 'video_url'].includes(fieldName)
         }
 
+        // Projet en attente : les médias et certains champs sont bloqués
         if (projet.statut === 'en_attente') {
-            return ['titre', 'montant_objectif', 'categorie', 'duree_campagne_jours'].includes(fieldName)
+            return ['titre', 'montant_objectif', 'categorie', 'duree_campagne_jours', 'image_principale', 'document_budget', 'document_business_plan'].includes(fieldName)
         }
 
         return false
@@ -378,13 +381,14 @@ const ModifierProjetPage = () => {
                     <div className="alert alert-warning mb-4">
                         <i className="bi bi-exclamation-triangle me-2"></i>
                         <strong>Projet actif :</strong> Seules la description complète et la vidéo peuvent être modifiées.
+                        Les photos et documents ne sont plus modifiables.
                     </div>
                 )}
 
                 {projet?.statut === 'en_attente' && (
                     <div className="alert alert-info mb-4">
                         <i className="bi bi-info-circle me-2"></i>
-                        <strong>En attente de validation :</strong> Certains champs ne peuvent plus être modifiés.
+                        <strong>En attente de validation :</strong> Le titre, montant, catégorie, durée, photos et documents ne peuvent plus être modifiés.
                     </div>
                 )}
 
