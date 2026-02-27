@@ -1,6 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 import toastService from './toastService';
+import maintenanceService from './maintenanceService';
 
 // URL de base de l'API Django (via variable d'environnement ou fallback local)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
@@ -52,6 +53,9 @@ api.interceptors.request.use(
 // ========== INTERCEPTEUR RESPONSE ==========
 api.interceptors.response.use(
     (response) => {
+        // Le backend répond → réinitialiser le compteur de maintenance
+        maintenanceService.reportSuccess();
+
         // Logger en développement uniquement
         if (process.env.NODE_ENV === 'development') {
             console.log('✅ API Response:', response.status, response.config.url);
@@ -72,10 +76,15 @@ api.interceptors.response.use(
 
         if (!response) {
             // Erreur réseau (pas de réponse du serveur)
-            toastService.error(
-                'Problème de connexion. Vérifiez votre connexion internet.',
-                { duration: 6000 }
-            );
+            maintenanceService.reportNetworkError();
+
+            // Ne pas afficher de toast si le mode maintenance est activé
+            if (!maintenanceService.isInMaintenance()) {
+                toastService.error(
+                    'Problème de connexion. Vérifiez votre connexion internet.',
+                    { duration: 6000 }
+                );
+            }
             return Promise.reject(error);
         }
 

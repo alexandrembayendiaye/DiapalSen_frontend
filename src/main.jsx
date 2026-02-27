@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import MaintenanceBanner from './components/MaintenanceBanner.jsx'
 import './index.css'
 import './styles/admin.css';
 
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <AuthProvider>
           <App />
+          <MaintenanceBanner />
           <Toaster
             position="top-right"
             toastOptions={{
