@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 // Import des composants layout
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
+import ScrollToTop from './components/ScrollToTop'
 
 // Import des pages
 import HomePage from './pages/HomePage'
@@ -108,6 +109,7 @@ function App() {
     <div className="App d-flex flex-column min-vh-100">
       {/* Header avec navigation */}
       <Header />
+      <ScrollToTop />
 
       {/* Contenu principal */}
       <main className="flex-grow-1" style={{ paddingTop: '56px' }}>
