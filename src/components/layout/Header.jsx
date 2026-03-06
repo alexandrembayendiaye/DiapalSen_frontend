@@ -15,7 +15,8 @@ const Header = () => {
             <div className="container">
 
                 {/* Logo */}
-                <Link className="navbar-brand fw-bold fs-3" to="/">
+                <Link className="navbar-brand d-flex align-items-center fw-bold fs-3" to="/">
+                    <img src="/logo.svg" alt="DiapalSen Logo" width="36" height="36" className="me-2 rounded" />
                     DiapalSen
                 </Link>
 
