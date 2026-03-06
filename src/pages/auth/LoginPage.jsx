@@ -149,29 +149,7 @@ const LoginPage = () => {
                                         </div>
                                     </div>
 
-                                    {/* Options */}
-                                    <div className="row mb-4">
-                                        <div className="col-6">
-                                            <div className="form-check">
-                                                <input
-                                                    className="form-check-input"
-                                                    type="checkbox"
-                                                    id="rememberMe"
-                                                />
-                                                <label className="form-check-label small" htmlFor="rememberMe">
-                                                    Se souvenir de moi
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div className="col-6 text-end">
-                                            <Link
-                                                to="/mot-de-passe-oublie"
-                                                className="text-decoration-none small"
-                                            >
-                                                Mot de passe oublié ?
-                                            </Link>
-                                        </div>
-                                    </div>
+
 
                                     {/* Bouton de connexion */}
                                     <div className="d-grid mb-3">
